@@ -1,0 +1,222 @@
+"""WESS-Global 제품 AI 챗봇 (Streamlit)"""
+import os
+import streamlit as st
+import chromadb
+from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
+
+LANGUAGES = {
+    "한국어": {
+        "greeting": "안녕하세요! WESS-Global 제품에 대해 궁금한 점을 물어보세요.",
+        "caption": "ENV200 초음파 슬러지 농도계에 대해 궁금한 점을 물어보세요.",
+        "placeholder": "질문을 입력하세요...",
+        "spinner": "답변을 생성하고 있습니다...",
+        "lang_rule": "반드시 한국어로만 답변하세요. 영어 문서를 참조하더라도 한국어로 번역하여 답변하세요. 제품명, 모델명 등 고유명사만 영어 그대로 사용하세요.",
+        "unknown": "해당 정보는 확인되지 않습니다. 추가 문의는 WESS-Global 고객지원(041-584-8820)으로 연락해주세요.",
+    },
+    "English": {
+        "greeting": "Hello! Ask me anything about WESS-Global products.",
+        "caption": "Ask any questions about the ENV200 Ultrasonic Sludge Density Meter.",
+        "placeholder": "Type your question...",
+        "spinner": "Generating answer...",
+        "lang_rule": "You must answer only in English. Even if the document is in Korean, translate and answer in English. Keep product names and model names as-is.",
+        "unknown": "The requested information could not be found. Please contact WESS-Global support at 041-584-8820.",
+    },
+    "日本語": {
+        "greeting": "こんにちは！WESS-Global製品についてお気軽にご質問ください。",
+        "caption": "ENV200超音波スラッジ濃度計についてご質問ください。",
+        "placeholder": "質問を入力してください...",
+        "spinner": "回答を生成しています...",
+        "lang_rule": "必ず日本語のみで回答してください。英語や韓国語の文書を参照しても日本語に翻訳して回答してください。製品名・モデル名はそのまま英語で使用してください。",
+        "unknown": "該当情報は確認できませんでした。詳細はWESS-Globalサポート(041-584-8820)までお問い合わせください。",
+    },
+    "中文": {
+        "greeting": "您好！欢迎咨询WESS-Global产品相关问题。",
+        "caption": "关于ENV200超声波污泥浓度计，请随时提问。",
+        "placeholder": "请输入您的问题...",
+        "spinner": "正在生成回答...",
+        "lang_rule": "必须仅用中文回答。即使参考英文或韩文文档，也请翻译成中文回答。产品名称和型号保持英文原样。",
+        "unknown": "未找到相关信息。如需进一步咨询，请联系WESS-Global客服(041-584-8820)。",
+    },
+    "Español": {
+        "greeting": "¡Hola! Pregúnteme sobre los productos de WESS-Global.",
+        "caption": "Haga preguntas sobre el medidor de densidad de lodos ultrasónico ENV200.",
+        "placeholder": "Escriba su pregunta...",
+        "spinner": "Generando respuesta...",
+        "lang_rule": "Debes responder solo en español. Aunque el documento esté en otro idioma, traduce y responde en español. Mantén los nombres de productos y modelos en su forma original.",
+        "unknown": "No se encontró la información solicitada. Contacte al soporte de WESS-Global al 041-584-8820.",
+    },
+    "Français": {
+        "greeting": "Bonjour ! Posez vos questions sur les produits WESS-Global.",
+        "caption": "Posez vos questions sur le densimètre à ultrasons ENV200.",
+        "placeholder": "Tapez votre question...",
+        "spinner": "Génération de la réponse...",
+        "lang_rule": "Vous devez répondre uniquement en français. Même si le document est dans une autre langue, traduisez et répondez en français. Gardez les noms de produits et modèles tels quels.",
+        "unknown": "L'information demandée n'a pas été trouvée. Veuillez contacter le support WESS-Global au 041-584-8820.",
+    },
+    "Deutsch": {
+        "greeting": "Hallo! Fragen Sie mich zu WESS-Global Produkten.",
+        "caption": "Stellen Sie Fragen zum Ultraschall-Schlammkonzentrationsmesser ENV200.",
+        "placeholder": "Geben Sie Ihre Frage ein...",
+        "spinner": "Antwort wird generiert...",
+        "lang_rule": "Sie müssen ausschließlich auf Deutsch antworten. Auch wenn das Dokument in einer anderen Sprache ist, übersetzen und antworten Sie auf Deutsch. Produktnamen und Modellbezeichnungen bleiben im Original.",
+        "unknown": "Die angeforderten Informationen wurden nicht gefunden. Bitte kontaktieren Sie den WESS-Global Support unter 041-584-8820.",
+    },
+    "Português": {
+        "greeting": "Olá! Pergunte sobre os produtos da WESS-Global.",
+        "caption": "Faça perguntas sobre o medidor de densidade ultrassônico ENV200.",
+        "placeholder": "Digite sua pergunta...",
+        "spinner": "Gerando resposta...",
+        "lang_rule": "Você deve responder apenas em português. Mesmo que o documento esteja em outro idioma, traduza e responda em português. Mantenha nomes de produtos e modelos como estão.",
+        "unknown": "A informação solicitada não foi encontrada. Entre em contato com o suporte WESS-Global pelo 041-584-8820.",
+    },
+    "Tiếng Việt": {
+        "greeting": "Xin chào! Hãy hỏi tôi về sản phẩm WESS-Global.",
+        "caption": "Đặt câu hỏi về máy đo nồng độ bùn siêu âm ENV200.",
+        "placeholder": "Nhập câu hỏi của bạn...",
+        "spinner": "Đang tạo câu trả lời...",
+        "lang_rule": "Bạn phải trả lời chỉ bằng tiếng Việt. Ngay cả khi tài liệu bằng ngôn ngữ khác, hãy dịch và trả lời bằng tiếng Việt. Giữ nguyên tên sản phẩm và model.",
+        "unknown": "Không tìm thấy thông tin yêu cầu. Vui lòng liên hệ hỗ trợ WESS-Global theo số 041-584-8820.",
+    },
+    "ภาษาไทย": {
+        "greeting": "สวัสดี! สอบถามเกี่ยวกับผลิตภัณฑ์ WESS-Global ได้เลย",
+        "caption": "สอบถามเกี่ยวกับเครื่องวัดความเข้มข้นตะกอนอัลตราโซนิก ENV200",
+        "placeholder": "พิมพ์คำถามของคุณ...",
+        "spinner": "กำลังสร้างคำตอบ...",
+        "lang_rule": "ต้องตอบเป็นภาษาไทยเท่านั้น แม้เอกสารจะเป็นภาษาอื่น ให้แปลและตอบเป็นภาษาไทย ชื่อผลิตภัณฑ์และรุ่นให้คงภาษาอังกฤษ",
+        "unknown": "ไม่พบข้อมูลที่ร้องขอ กรุณาติดต่อฝ่ายสนับสนุน WESS-Global ที่ 041-584-8820",
+    },
+    "Bahasa Indonesia": {
+        "greeting": "Halo! Tanyakan tentang produk WESS-Global.",
+        "caption": "Ajukan pertanyaan tentang pengukur kepadatan lumpur ultrasonik ENV200.",
+        "placeholder": "Ketik pertanyaan Anda...",
+        "spinner": "Membuat jawaban...",
+        "lang_rule": "Anda harus menjawab hanya dalam Bahasa Indonesia. Meskipun dokumen dalam bahasa lain, terjemahkan dan jawab dalam Bahasa Indonesia. Pertahankan nama produk dan model apa adanya.",
+        "unknown": "Informasi yang diminta tidak ditemukan. Silakan hubungi dukungan WESS-Global di 041-584-8820.",
+    },
+    "العربية": {
+        "greeting": "مرحباً! اسألني عن منتجات WESS-Global.",
+        "caption": "اطرح أسئلتك حول جهاز قياس كثافة الحمأة بالموجات فوق الصوتية ENV200.",
+        "placeholder": "اكتب سؤالك...",
+        "spinner": "جاري إنشاء الإجابة...",
+        "lang_rule": "يجب الإجابة باللغة العربية فقط. حتى لو كانت الوثيقة بلغة أخرى، قم بالترجمة والإجابة بالعربية. احتفظ بأسماء المنتجات والطرازات كما هي.",
+        "unknown": "لم يتم العثور على المعلومات المطلوبة. يرجى الاتصال بدعم WESS-Global على الرقم 041-584-8820.",
+    },
+    "Русский": {
+        "greeting": "Здравствуйте! Задавайте вопросы о продукции WESS-Global.",
+        "caption": "Задавайте вопросы об ультразвуковом измерителе плотности осадка ENV200.",
+        "placeholder": "Введите ваш вопрос...",
+        "spinner": "Генерация ответа...",
+        "lang_rule": "Отвечайте только на русском языке. Даже если документ на другом языке, переведите и ответьте на русском. Названия продуктов и моделей оставляйте на английском.",
+        "unknown": "Запрашиваемая информация не найдена. Свяжитесь со службой поддержки WESS-Global по номеру 041-584-8820.",
+    },
+}
+
+
+@st.cache_resource
+def init_clients():
+    """OpenAI, ChromaDB 클라이언트 초기화"""
+    openai_client = OpenAI()
+    chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+    collection = chroma_client.get_collection("wess_docs")
+    return openai_client, collection
+
+
+def search_docs(collection, openai_client, query, n_results=5):
+    """질문과 관련된 문서 검색"""
+    query_embedding = openai_client.embeddings.create(
+        model="text-embedding-3-small",
+        input=query
+    ).data[0].embedding
+
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=n_results
+    )
+    return results["documents"][0]
+
+
+def get_answer(openai_client, question, context_docs, lang="한국어"):
+    """GPT로 답변 생성"""
+    context = "\n\n---\n\n".join(context_docs)
+    lang_cfg = LANGUAGES[lang]
+
+    response = openai_client.chat.completions.create(
+        model="gpt-5.4-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a WESS-Global product support specialist. "
+                    "Answer the customer's question based on the product documents below.\n"
+                    "Rules:\n"
+                    "- Never reference table/figure/chapter numbers like '표 3-3', 'Figure 2.1', 'Chapter 5'. "
+                    "The customer does not have the manual.\n"
+                    "- Explain the content directly instead.\n"
+                    f"- {lang_cfg['lang_rule']}\n"
+                    f"- If the information is not in the documents, say: '{lang_cfg['unknown']}'\n\n"
+                    f"[Product Documents]\n{context}"
+                )
+            },
+            {"role": "user", "content": question}
+        ],
+        temperature=0.3
+    )
+    return response.choices[0].message.content
+
+
+# --- Streamlit UI ---
+st.set_page_config(
+    page_title="WESS-Global 제품 지원 챗봇",
+    page_icon="🔧",
+    layout="centered"
+)
+
+st.title("WESS-Global 제품 지원 챗봇")
+
+# 언어 설정
+lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=0)
+lang_cfg = LANGUAGES[lang]
+
+st.caption(lang_cfg["caption"])
+
+# 클라이언트 초기화
+try:
+    openai_client, collection = init_clients()
+except Exception as e:
+    st.error(f"초기화 실패: {e}")
+    st.info("먼저 `python load_docs.py`를 실행하여 문서를 로드해주세요.")
+    st.stop()
+
+# 채팅 히스토리
+if "messages" not in st.session_state or st.session_state.get("prev_lang") != lang:
+    st.session_state.messages = [
+        {"role": "assistant", "content": lang_cfg["greeting"]}
+    ]
+    st.session_state.prev_lang = lang
+
+# 이전 메시지 표시
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# 사용자 입력
+if prompt := st.chat_input(lang_cfg["placeholder"]):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        with st.spinner(lang_cfg["spinner"]):
+            # 관련 문서 검색
+            context_docs = search_docs(collection, openai_client, prompt)
+            # 답변 생성
+            answer = get_answer(openai_client, prompt, context_docs, lang)
+
+        st.markdown(answer)
+
+    st.session_state.messages.append({"role": "assistant", "content": answer})
