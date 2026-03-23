@@ -71,41 +71,46 @@ def get_embedding(text):
     return response.data[0].embedding
 
 
-def main():
-    # DOCX 파일 찾기
-    docx_files = []
-    for f in os.listdir(DOCS_DIR):
+def extract_text_from_md(filepath):
+    """MD 파일에서 텍스트 추출"""
+    with open(filepath, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+def load_files(base_dir, collection):
+    """DOCX + MD 파일을 찾아서 벡터DB에 저장"""
+    files = []
+
+    # DOCX 파일 (상위 폴더)
+    for f in os.listdir(base_dir):
         if f.lower().endswith(".docx"):
-            docx_files.append(os.path.join(DOCS_DIR, f))
+            files.append(("docx", os.path.join(base_dir, f)))
 
-    if not docx_files:
-        print("DOCX 파일을 찾을 수 없습니다.")
-        return
+    # MD 파일 (docs 폴더)
+    docs_dir = os.path.join(os.path.dirname(__file__), "docs")
+    if os.path.exists(docs_dir):
+        for f in os.listdir(docs_dir):
+            if f.lower().endswith(".md"):
+                files.append(("md", os.path.join(docs_dir, f)))
 
-    print(f"발견된 문서: {len(docx_files)}개")
-    for f in docx_files:
-        print(f"  - {os.path.basename(f)}")
+    if not files:
+        print("파일을 찾을 수 없습니다.")
+        return 0
 
-    # ChromaDB 초기화
-    chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+    print(f"발견된 문서: {len(files)}개")
+    for ftype, fpath in files:
+        print(f"  - [{ftype}] {os.path.basename(fpath)}")
 
-    # 기존 컬렉션 삭제 후 재생성
-    try:
-        chroma_client.delete_collection("wess_density")
-    except Exception:
-        pass
-    collection = chroma_client.create_collection(
-        name="wess_density",
-        metadata={"hnsw:space": "cosine"}
-    )
-
-    # 문서별 처리
     total_chunks = 0
-    for filepath in docx_files:
+    for ftype, filepath in files:
         filename = os.path.basename(filepath)
         print(f"\n처리 중: {filename}")
 
-        text = extract_text_from_docx(filepath)
+        if ftype == "docx":
+            text = extract_text_from_docx(filepath)
+        else:
+            text = extract_text_from_md(filepath)
+
         print(f"  텍스트 길이: {len(text)}자")
 
         chunks = chunk_text(text)
@@ -128,7 +133,25 @@ def main():
         total_chunks += len(chunks)
         print(f"  완료!")
 
-    print(f"\n전체 완료! 총 {total_chunks}개 청크 저장됨")
+    return total_chunks
+
+
+def main():
+    # ChromaDB 초기화
+    chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+
+    # 기존 컬렉션 삭제 후 재생성
+    try:
+        chroma_client.delete_collection("wess_density")
+    except Exception:
+        pass
+    collection = chroma_client.create_collection(
+        name="wess_density",
+        metadata={"hnsw:space": "cosine"}
+    )
+
+    total = load_files(DOCS_DIR, collection)
+    print(f"\n전체 완료! 총 {total}개 청크 저장됨")
 
 
 if __name__ == "__main__":
