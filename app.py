@@ -13,6 +13,11 @@ if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
 
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
+PRODUCTS = {
+    "농도계 (ENV200)": "wess_density",
+    "계면계 (ENV130)": "wess_interface",
+}
+
 LANGUAGES = {
     "한국어": {
         "greeting": "안녕하세요! WESS-Global 제품에 대해 궁금한 점을 물어보세요.",
@@ -126,8 +131,13 @@ def init_clients():
     """OpenAI, ChromaDB 클라이언트 초기화"""
     openai_client = OpenAI()
     chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
-    collection = chroma_client.get_collection("wess_docs")
-    return openai_client, collection
+    collections = {}
+    for product_name, col_name in PRODUCTS.items():
+        try:
+            collections[product_name] = chroma_client.get_collection(col_name)
+        except Exception:
+            collections[product_name] = None
+    return openai_client, collections
 
 
 def search_docs(collection, openai_client, query, n_results=5):
@@ -182,26 +192,35 @@ st.set_page_config(
 
 st.title("WESS-Global 제품 지원 챗봇")
 
-# 언어 설정
-lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=0)
+# 제품 / 언어 설정
+col1, col2 = st.columns(2)
+with col1:
+    product = st.selectbox("Product / 제품", list(PRODUCTS.keys()), index=0)
+with col2:
+    lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=0)
 lang_cfg = LANGUAGES[lang]
 
 st.caption(lang_cfg["caption"])
 
 # 클라이언트 초기화
 try:
-    openai_client, collection = init_clients()
+    openai_client, collections = init_clients()
 except Exception as e:
     st.error(f"초기화 실패: {e}")
-    st.info("먼저 `python load_docs.py`를 실행하여 문서를 로드해주세요.")
+    st.stop()
+
+collection = collections.get(product)
+if collection is None:
+    st.warning("해당 제품의 문서가 아직 준비되지 않았습니다. / Documents not yet available for this product.")
     st.stop()
 
 # 채팅 히스토리
-if "messages" not in st.session_state or st.session_state.get("prev_lang") != lang:
+if "messages" not in st.session_state or st.session_state.get("prev_lang") != lang or st.session_state.get("prev_product") != product:
     st.session_state.messages = [
         {"role": "assistant", "content": lang_cfg["greeting"]}
     ]
     st.session_state.prev_lang = lang
+    st.session_state.prev_product = product
 
 # 이전 메시지 표시
 for msg in st.session_state.messages:

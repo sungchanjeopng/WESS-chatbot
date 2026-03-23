@@ -91,11 +91,11 @@ def main():
 
     # 기존 컬렉션 삭제 후 재생성
     try:
-        chroma_client.delete_collection("wess_docs")
+        chroma_client.delete_collection("wess_density")
     except Exception:
         pass
     collection = chroma_client.create_collection(
-        name="wess_docs",
+        name="wess_density",
         metadata={"hnsw:space": "cosine"}
     )
 
