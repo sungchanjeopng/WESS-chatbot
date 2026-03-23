@@ -178,7 +178,7 @@ def get_answer(openai_client, question, context_docs, lang="한국어", chat_his
 
     # 최근 대화 기록 추가 (최대 10개)
     if chat_history:
-        for msg in chat_history[-10:]:
+        for msg in chat_history[-20:]:
             if msg["role"] in ("user", "assistant"):
                 messages.append({"role": msg["role"], "content": msg["content"]})
 
@@ -224,12 +224,10 @@ if collection is None:
     st.stop()
 
 # 채팅 히스토리
-if "messages" not in st.session_state or st.session_state.get("prev_lang") != lang or st.session_state.get("prev_product") != product:
+if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "assistant", "content": lang_cfg["greeting"]}
     ]
-    st.session_state.prev_lang = lang
-    st.session_state.prev_product = product
 
 # 이전 메시지 표시
 for msg in st.session_state.messages:
