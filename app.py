@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Streamlit Cloud Secrets 지원
+if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
+    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
 LANGUAGES = {
