@@ -154,30 +154,39 @@ def search_docs(collection, openai_client, query, n_results=5):
     return results["documents"][0]
 
 
-def get_answer(openai_client, question, context_docs, lang="한국어"):
-    """GPT로 답변 생성"""
+def get_answer(openai_client, question, context_docs, lang="한국어", chat_history=None):
+    """GPT로 답변 생성 (대화 기록 포함)"""
     context = "\n\n---\n\n".join(context_docs)
     lang_cfg = LANGUAGES[lang]
 
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a WESS-Global product support specialist. "
+                "Answer the customer's question based on the product documents below.\n"
+                "Rules:\n"
+                "- Never reference table/figure/chapter numbers like '표 3-3', 'Figure 2.1', 'Chapter 5'. "
+                "The customer does not have the manual.\n"
+                "- Explain the content directly instead.\n"
+                f"- {lang_cfg['lang_rule']}\n"
+                f"- If the information is not in the documents, say: '{lang_cfg['unknown']}'\n\n"
+                f"[Product Documents]\n{context}"
+            )
+        }
+    ]
+
+    # 최근 대화 기록 추가 (최대 10개)
+    if chat_history:
+        for msg in chat_history[-10:]:
+            if msg["role"] in ("user", "assistant"):
+                messages.append({"role": msg["role"], "content": msg["content"]})
+
+    messages.append({"role": "user", "content": question})
+
     response = openai_client.chat.completions.create(
         model="gpt-5.4-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a WESS-Global product support specialist. "
-                    "Answer the customer's question based on the product documents below.\n"
-                    "Rules:\n"
-                    "- Never reference table/figure/chapter numbers like '표 3-3', 'Figure 2.1', 'Chapter 5'. "
-                    "The customer does not have the manual.\n"
-                    "- Explain the content directly instead.\n"
-                    f"- {lang_cfg['lang_rule']}\n"
-                    f"- If the information is not in the documents, say: '{lang_cfg['unknown']}'\n\n"
-                    f"[Product Documents]\n{context}"
-                )
-            },
-            {"role": "user", "content": question}
-        ],
+        messages=messages,
         temperature=0.3
     )
     return response.choices[0].message.content
@@ -238,7 +247,7 @@ if prompt := st.chat_input(lang_cfg["placeholder"]):
             # 관련 문서 검색
             context_docs = search_docs(collection, openai_client, prompt)
             # 답변 생성
-            answer = get_answer(openai_client, prompt, context_docs, lang)
+            answer = get_answer(openai_client, prompt, context_docs, lang, st.session_state.messages)
 
         st.markdown(answer)
 
