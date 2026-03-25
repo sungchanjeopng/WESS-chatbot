@@ -245,7 +245,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("WESS-Global 제품 지원 챗봇")
 
 # 제품 / 언어 / 새 대화 버튼
 col1, col2, col3 = st.columns([2, 2, 1])
