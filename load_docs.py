@@ -151,7 +151,55 @@ def main():
     )
 
     total = load_files(DOCS_DIR, collection)
-    print(f"\n전체 완료! 총 {total}개 청크 저장됨")
+    print(f"\n농도계 완료! 총 {total}개 청크 저장됨")
+
+    # 계면계 컬렉션
+    INTERFACE_DIR = os.path.join(os.path.dirname(__file__), "..", "계면계")
+    if os.path.exists(INTERFACE_DIR):
+        try:
+            chroma_client.delete_collection("wess_interface")
+        except Exception:
+            pass
+        interface_col = chroma_client.create_collection(
+            name="wess_interface",
+            metadata={"hnsw:space": "cosine"}
+        )
+
+        # 계면계 DOCX 파일 로드
+        ifiles = []
+        for f in os.listdir(INTERFACE_DIR):
+            if f.lower().endswith(".docx"):
+                ifiles.append(("docx", os.path.join(INTERFACE_DIR, f)))
+
+        if ifiles:
+            print(f"\n=== 계면계 문서: {len(ifiles)}개 ===")
+            for ftype, fpath in ifiles:
+                print(f"  - {os.path.basename(fpath)}")
+
+            itotal = 0
+            for ftype, filepath in ifiles:
+                filename = os.path.basename(filepath)
+                print(f"\n처리 중: {filename}")
+                text = extract_text_from_docx(filepath)
+                print(f"  텍스트 길이: {len(text)}자")
+                chunks = chunk_text(text)
+                print(f"  청크 수: {len(chunks)}개")
+                for i, chunk in enumerate(chunks):
+                    chunk_id = f"{filename}_{i}"
+                    embedding = get_embedding(chunk)
+                    interface_col.add(
+                        ids=[chunk_id],
+                        embeddings=[embedding],
+                        documents=[chunk],
+                        metadatas=[{"source": filename, "chunk_index": i}]
+                    )
+                    if (i + 1) % 10 == 0:
+                        print(f"  {i + 1}/{len(chunks)} 임베딩 완료...")
+                itotal += len(chunks)
+                print(f"  완료!")
+            print(f"\n계면계 완료! 총 {itotal}개 청크 저장됨")
+
+    print(f"\n전체 완료!")
 
 
 if __name__ == "__main__":

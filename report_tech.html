@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>RAG / 벡터DB / Embedding 기술 요약</title>
+    <style>
+        @page { size: A4; margin: 12mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Malgun Gothic', sans-serif; color: #222; font-size: 9.5pt; line-height: 1.55; }
+
+        .header { background: #1a237e; color: white; padding: 14px 20px; border-radius: 8px; margin-bottom: 12px; text-align: center; }
+        .header h1 { font-size: 15pt; }
+        .header p { font-size: 8pt; opacity: 0.75; margin-top: 2px; }
+
+        h2 { font-size: 12pt; color: #1a237e; margin: 14px 0 6px; padding-left: 8px; border-left: 4px solid #1a237e; }
+
+        .def { background: #f5f5f5; border-left: 4px solid #5c6bc0; padding: 8px 14px; margin: 6px 0; border-radius: 0 6px 6px 0; }
+        .def b { color: #1a237e; }
+
+        .flow { display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .fs { background: white; border: 2px solid #5c6bc0; border-radius: 8px; padding: 8px 14px; text-align: center; font-size: 8.5pt; }
+        .fs.emb { background: #e8f5e9; border-color: #43a047; }
+        .fs.vec { background: #e3f2fd; border-color: #1e88e5; }
+        .fs.rag { background: #1a237e; color: white; border-color: #1a237e; }
+        .fa { font-size: 16pt; color: #5c6bc0; margin: 0 6px; }
+
+        .num { font-family: Consolas, monospace; background: #263238; color: #a5d6a7; padding: 3px 8px; border-radius: 4px; font-size: 8pt; }
+
+        .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .footer { text-align: center; color: #aaa; font-size: 7pt; margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; }
+    </style>
+</head>
+<body>
+<div style="width:190mm;">
+
+<div class="header">
+    <h1>Embedding / Vector DB / RAG</h1>
+    <p>AI 챗봇 핵심 기술 요약 | 2026.03 | WESS-Global</p>
+</div>
+
+<h2>1. Embedding (임베딩)</h2>
+<div class="def">
+    <b>텍스트를 고차원 벡터(숫자 배열)로 변환하는 기술.</b> 의미가 유사한 텍스트는 벡터 공간에서 가까운 위치에 매핑된다.
+</div>
+<div class="flow">
+    <div class="fs">"센서 설치 방법"</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs emb">Embedding Model<br><small>text-embedding-3-small</small></div>
+    <div class="fa">&rarr;</div>
+    <div class="num">[0.23, -0.87, 0.45, ... ] (1536차원)</div>
+</div>
+<p>유사 문장 &rarr; 유사 벡터 &rarr; <b>코사인 유사도(Cosine Similarity)</b>로 의미적 거리 계산 가능.</p>
+
+<h2>2. Vector DB (벡터 데이터베이스)</h2>
+<div class="def">
+    <b>벡터를 저장하고 유사도 기반으로 검색(ANN: Approximate Nearest Neighbor)하는 데이터베이스.</b> 키워드 매칭이 아닌 의미적 유사도로 검색한다.
+</div>
+<div class="cols">
+    <div>
+        <p><b>키워드 검색:</b> "측정 범위" &rarr; 해당 단어 포함 문서만</p>
+        <p><b>벡터 검색:</b> "측정 범위" &rarr; "센서 감지 영역", "측정 가능 거리" 등 의미적으로 유사한 문서 전부 반환</p>
+    </div>
+    <div>
+        <p><b>본 시스템:</b> ChromaDB (HNSW 인덱스, 코사인 유사도)</p>
+        <p><b>저장:</b> 제품 문서 12개 &rarr; 500자 청크 분할 &rarr; 138개 벡터 저장</p>
+        <p><b>검색:</b> 질문 벡터와 가장 가까운 청크 Top-5 반환</p>
+    </div>
+</div>
+
+<h2>3. RAG (Retrieval-Augmented Generation)</h2>
+<div class="def">
+    <b>LLM이 답변 생성 시, 외부 지식을 검색(Retrieval)하여 컨텍스트로 주입한 뒤 생성(Generation)하는 아키텍처.</b> LLM의 환각(Hallucination)을 줄이고 도메인 특화 답변을 가능하게 한다.
+</div>
+<div class="flow">
+    <div class="fs">Query</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs emb">Embedding</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs vec">Vector DB<br>Top-K 검색</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs rag">LLM<br>Context + Query &rarr; 답변</div>
+</div>
+<div class="cols" style="margin-top:8px;">
+    <div>
+        <p><b>Naive LLM:</b> 학습 데이터(파라메트릭 지식)에만 의존 &rarr; 도메인 지식 부족, 환각 발생</p>
+        <p><b>RAG:</b> 비파라메트릭 지식(외부 문서)을 프롬프트에 주입 &rarr; 근거 기반 답변, 문서 업데이트 즉시 반영</p>
+    </div>
+    <div>
+        <p><b>본 시스템 구성:</b></p>
+        <p>Embedding: OpenAI text-embedding-3-small (1536d)</p>
+        <p>Vector DB: ChromaDB (코사인, Top-5)</p>
+        <p>LLM: GPT-5.4-mini (temperature 0.3, stream)</p>
+        <p>Context window: 검색 문서 5개 + 대화 히스토리 20개</p>
+    </div>
+</div>
+
+<h2>4. 전체 파이프라인</h2>
+<p style="font-size:8pt; color:#555; margin-bottom:4px;"><b>[Indexing]</b> 문서 사전 처리 (최초 1회)</p>
+<div class="flow">
+    <div class="fs">문서 12개<br><small>DOCX + MD</small></div>
+    <div class="fa">&rarr;</div>
+    <div class="fs">청크 분할<br><small>500자/50 overlap</small></div>
+    <div class="fa">&rarr;</div>
+    <div class="fs emb">Embedding<br><small>1536d 벡터</small></div>
+    <div class="fa">&rarr;</div>
+    <div class="fs vec">ChromaDB 저장<br><small>138 chunks</small></div>
+</div>
+<p style="font-size:8pt; color:#555; margin: 6px 0 4px;"><b>[Query]</b> 고객 질문 처리 (매 질문마다)</p>
+<div class="flow">
+    <div class="fs">User Query</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs emb">Embedding</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs vec">ChromaDB<br>Top-5 검색</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs rag">GPT-5.4-mini<br>Context + Query</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs">답변 생성<br><small>스트리밍 출력</small></div>
+</div>
+
+<div class="footer">&copy; 2026 WESS-Global Inc. | Embedding / Vector DB / RAG 기술 요약 | 작성: 정성찬</div>
+</div>
+</body>
+</html>
