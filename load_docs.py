@@ -165,11 +165,18 @@ def main():
             metadata={"hnsw:space": "cosine"}
         )
 
-        # 계면계 DOCX 파일 로드
+        # 계면계 DOCX + MD 파일 로드
         ifiles = []
         for f in os.listdir(INTERFACE_DIR):
             if f.lower().endswith(".docx"):
                 ifiles.append(("docx", os.path.join(INTERFACE_DIR, f)))
+
+        # 계면계 MD 파일 (docs_interface 폴더)
+        idocs_dir = os.path.join(os.path.dirname(__file__), "docs_interface")
+        if os.path.exists(idocs_dir):
+            for f in os.listdir(idocs_dir):
+                if f.lower().endswith(".md"):
+                    ifiles.append(("md", os.path.join(idocs_dir, f)))
 
         if ifiles:
             print(f"\n=== 계면계 문서: {len(ifiles)}개 ===")
@@ -180,7 +187,10 @@ def main():
             for ftype, filepath in ifiles:
                 filename = os.path.basename(filepath)
                 print(f"\n처리 중: {filename}")
-                text = extract_text_from_docx(filepath)
+                if ftype == "docx":
+                    text = extract_text_from_docx(filepath)
+                else:
+                    text = extract_text_from_md(filepath)
                 print(f"  텍스트 길이: {len(text)}자")
                 chunks = chunk_text(text)
                 print(f"  청크 수: {len(chunks)}개")
