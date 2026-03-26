@@ -209,6 +209,58 @@ def main():
                 print(f"  완료!")
             print(f"\n계면계 완료! 총 {itotal}개 청크 저장됨")
 
+    # 계면계 ENV120 컬렉션
+    ENV120_DIR = os.path.join(os.path.dirname(__file__), "..", "계면계 (ENV120)")
+    if os.path.exists(ENV120_DIR):
+        try:
+            chroma_client.delete_collection("wess_interface_120")
+        except Exception:
+            pass
+        env120_col = chroma_client.create_collection(
+            name="wess_interface_120",
+            metadata={"hnsw:space": "cosine"}
+        )
+
+        e120files = []
+        for f in os.listdir(ENV120_DIR):
+            fl = f.lower()
+            # Engineer Manual과 엔지니어/테스트 PPT 제외
+            if "engineer" in fl or "엔지니어" in fl or "테스트" in fl:
+                continue
+            if fl.endswith(".docx"):
+                e120files.append(("docx", os.path.join(ENV120_DIR, f)))
+
+        if e120files:
+            print(f"\n=== 계면계 ENV120 문서: {len(e120files)}개 ===")
+            for ftype, fpath in e120files:
+                print(f"  - {os.path.basename(fpath)}")
+
+            e120total = 0
+            for ftype, filepath in e120files:
+                filename = os.path.basename(filepath)
+                print(f"\n처리 중: {filename}")
+                if ftype == "docx":
+                    text = extract_text_from_docx(filepath)
+                else:
+                    text = extract_text_from_md(filepath)
+                print(f"  텍스트 길이: {len(text)}자")
+                chunks = chunk_text(text)
+                print(f"  청크 수: {len(chunks)}개")
+                for i, chunk in enumerate(chunks):
+                    chunk_id = f"{filename}_{i}"
+                    embedding = get_embedding(chunk)
+                    env120_col.add(
+                        ids=[chunk_id],
+                        embeddings=[embedding],
+                        documents=[chunk],
+                        metadatas=[{"source": filename, "chunk_index": i}]
+                    )
+                    if (i + 1) % 10 == 0:
+                        print(f"  {i + 1}/{len(chunks)} 임베딩 완료...")
+                e120total += len(chunks)
+                print(f"  완료!")
+            print(f"\n계면계 ENV120 완료! 총 {e120total}개 청크 저장됨")
+
     print(f"\n전체 완료!")
 
 

@@ -16,6 +16,7 @@ CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 PRODUCTS = {
     "농도계 (ENV200)": "wess_density",
     "계면계 (ENV130)": "wess_interface",
+    "계면계 (ENV120)": "wess_interface_120",
 }
 
 LANGUAGES = {
