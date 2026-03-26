@@ -168,7 +168,7 @@ def search_docs(collection, openai_client, query, n_results=15):
     return results["documents"][0]
 
 
-def stream_answer(openai_client, question, context_docs, lang="한국어", chat_history=None, product=""):
+def stream_answer(openai_client, question, context_docs, lang="한국어", chat_history=None, product="", model="gpt-5.4-mini"):
     """GPT 스트리밍 답변 생성"""
     context = "\n\n---\n\n".join(context_docs)
     lang_cfg = LANGUAGES[lang]
@@ -240,7 +240,7 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
     messages.append({"role": "user", "content": question})
 
     stream = openai_client.chat.completions.create(
-        model="gpt-5.4-mini",
+        model=model,
         messages=messages,
         temperature=0.3,
         stream=True
@@ -293,13 +293,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# 제품 / 언어 / 새 대화 버튼
-col1, col2, col3 = st.columns([2, 2, 1])
+MODELS = {
+    "GPT-5.4 mini (빠름, 저렴)": "gpt-5.4-mini",
+    "GPT-5.4 nano (가장 저렴)": "gpt-5.4-nano",
+    "GPT-5.4 (최고 성능)": "gpt-5.4",
+}
+
+# 제품 / 언어 / 모델 / 새 대화 버튼
+col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
 with col1:
     product = st.selectbox("Product / 제품", list(PRODUCTS.keys()), index=0)
 with col2:
     lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=0)
 with col3:
+    model_name = st.selectbox("Model", list(MODELS.keys()), index=0)
+with col4:
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(LANGUAGES[lang]["new_chat"], use_container_width=True):
         st.session_state.messages = [
@@ -343,7 +351,7 @@ if prompt := st.chat_input(lang_cfg["placeholder"]):
         # 관련 문서 검색
         context_docs = search_docs(collection, openai_client, prompt)
         # 스트리밍 답변
-        stream = stream_answer(openai_client, prompt, context_docs, lang, st.session_state.messages, product)
+        stream = stream_answer(openai_client, prompt, context_docs, lang, st.session_state.messages, product, MODELS[model_name])
         answer = st.write_stream(stream)
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
