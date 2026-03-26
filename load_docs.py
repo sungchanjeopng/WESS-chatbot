@@ -12,6 +12,20 @@ DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "농도계 (ENV200)")
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
 
+from pptx import Presentation as PptxPresentation
+
+
+def extract_text_from_pptx(filepath):
+    """PPTX 파일에서 텍스트 추출"""
+    prs = PptxPresentation(filepath)
+    texts = []
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if hasattr(shape, 'text') and shape.text.strip():
+                texts.append(shape.text.strip())
+    return "\n".join(texts)
+
+
 def extract_text_from_docx(filepath):
     """DOCX 파일에서 텍스트 추출 (단락 + 테이블)"""
     doc = docx.Document(filepath)
@@ -78,13 +92,16 @@ def extract_text_from_md(filepath):
 
 
 def load_files(base_dir, collection):
-    """DOCX + MD 파일을 찾아서 벡터DB에 저장"""
+    """DOCX + PPTX + MD 파일을 찾아서 벡터DB에 저장"""
     files = []
 
-    # DOCX 파일 (상위 폴더)
+    # DOCX + PPTX 파일 (상위 폴더)
     for f in os.listdir(base_dir):
-        if f.lower().endswith(".docx"):
+        fl = f.lower()
+        if fl.endswith(".docx"):
             files.append(("docx", os.path.join(base_dir, f)))
+        elif fl.endswith(".pptx"):
+            files.append(("pptx", os.path.join(base_dir, f)))
 
     # MD 파일 (docs 폴더)
     docs_dir = os.path.join(os.path.dirname(__file__), "docs")
@@ -108,6 +125,8 @@ def load_files(base_dir, collection):
 
         if ftype == "docx":
             text = extract_text_from_docx(filepath)
+        elif ftype == "pptx":
+            text = extract_text_from_pptx(filepath)
         else:
             text = extract_text_from_md(filepath)
 
@@ -165,11 +184,14 @@ def main():
             metadata={"hnsw:space": "cosine"}
         )
 
-        # 계면계 DOCX + MD 파일 로드
+        # 계면계 DOCX + PPTX + MD 파일 로드
         ifiles = []
         for f in os.listdir(INTERFACE_DIR):
-            if f.lower().endswith(".docx"):
+            fl = f.lower()
+            if fl.endswith(".docx"):
                 ifiles.append(("docx", os.path.join(INTERFACE_DIR, f)))
+            elif fl.endswith(".pptx"):
+                ifiles.append(("pptx", os.path.join(INTERFACE_DIR, f)))
 
         # 계면계 MD 파일 (docs_interface 폴더)
         idocs_dir = os.path.join(os.path.dirname(__file__), "docs_interface")
@@ -189,6 +211,8 @@ def main():
                 print(f"\n처리 중: {filename}")
                 if ftype == "docx":
                     text = extract_text_from_docx(filepath)
+                elif ftype == "pptx":
+                    text = extract_text_from_pptx(filepath)
                 else:
                     text = extract_text_from_md(filepath)
                 print(f"  텍스트 길이: {len(text)}자")
@@ -224,11 +248,10 @@ def main():
         e120files = []
         for f in os.listdir(ENV120_DIR):
             fl = f.lower()
-            # Engineer Manual과 엔지니어/테스트 PPT 제외
-            if "engineer" in fl or "엔지니어" in fl or "테스트" in fl:
-                continue
             if fl.endswith(".docx"):
                 e120files.append(("docx", os.path.join(ENV120_DIR, f)))
+            elif fl.endswith(".pptx"):
+                e120files.append(("pptx", os.path.join(ENV120_DIR, f)))
 
         # ENV120 MD 파일 (docs_env120 폴더)
         e120docs_dir = os.path.join(os.path.dirname(__file__), "docs_env120")
@@ -248,6 +271,8 @@ def main():
                 print(f"\n처리 중: {filename}")
                 if ftype == "docx":
                     text = extract_text_from_docx(filepath)
+                elif ftype == "pptx":
+                    text = extract_text_from_pptx(filepath)
                 else:
                     text = extract_text_from_md(filepath)
                 print(f"  텍스트 길이: {len(text)}자")
