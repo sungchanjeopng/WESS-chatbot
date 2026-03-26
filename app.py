@@ -173,27 +173,63 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
     context = "\n\n---\n\n".join(context_docs)
     lang_cfg = LANGUAGES[lang]
 
-    # 기본 프롬프트 (ENV200, ENV130)
-    base_prompt = (
-        "You are a WESS-Global product support specialist. "
-        "Answer the customer's question based on the product documents below.\n\n"
+    # 공통 규칙
+    common_rules = (
         "How to answer:\n"
         "1. Cross-reference multiple documents to ensure consistency before answering.\n"
         "2. Even if the exact answer is not directly stated, infer and reason based on related information. Provide practical tips.\n"
         "3. Provide step-by-step procedures that can be followed immediately.\n"
-        "4. Use clear option names (문턱전압/Threshold, ASF, 수신감도/Echo AMP, 댐핑/Damping, etc.) to aid understanding.\n"
-        "5. Think deeply before answering. Consider the context, related parameters, and potential issues.\n"
-        "6. If the answer is ambiguous, say: '정확하지 않을 수 있습니다. 좀 더 확인이 필요합니다.'\n"
-        "7. If documents contain conflicting information, note that 'versions may differ'.\n\n"
+        "4. Think deeply before answering. Consider the context, related parameters, and potential issues.\n"
+        "5. If the answer is ambiguous, say: '정확하지 않을 수 있습니다. 좀 더 확인이 필요합니다.'\n"
+        "6. If documents contain conflicting information, note that 'versions may differ'.\n\n"
         "Rules:\n"
-        "- Never reference table/figure/chapter numbers like '표 3-3', 'Figure 2.1', 'Chapter 5'. "
-        "The customer does not have the manual.\n"
+        "- Never reference table/figure/chapter numbers like '표 3-3', 'Figure 2.1', 'Chapter 5'. The customer does not have the manual.\n"
         "- Explain the content directly instead.\n"
         "- But always try your best to find related information and provide a helpful answer before giving up.\n"
         f"- {lang_cfg['lang_rule']}\n"
-        f"- If truly no relevant information exists, say: '{lang_cfg['unknown']}'\n\n"
-        f"[Product Documents]\n{context}"
+        f"- If truly no relevant information exists, say: '{lang_cfg['unknown']}'\n"
     )
+
+    # ENV200 (농도계) 전용 용어 규칙
+    env200_terms = (
+        "\nProduct-specific terminology rules (ENV200 - Density Meter):\n"
+        "- Use these terms: EEA, Detection Area, 농도/Density, 댐핑/Damping, 배관 외경/Pipe Diameter, 교정/Calibration\n"
+        "- DO NOT use these terms (they belong to interface meters): Threshold/문턱전압, Echo AMP/수신감도, ASF, Light/Heavy, Level/Distance\n"
+    )
+
+    # ENV130 (계면계) 전용 용어 규칙
+    env130_terms = (
+        "\nProduct-specific terminology rules (ENV130 - Interface Meter):\n"
+        "- Use these terms: Threshold/문턱전압, Echo AMP/수신감도, ASF, Light/Heavy, 댐핑/Damping, Level/Distance\n"
+        "- DO NOT use these terms (they belong to density meters): EEA, Detection Area, Pipe Diameter\n"
+    )
+
+    # ENV120 (계면계) 전용 용어 규칙
+    env120_terms = (
+        "\nProduct-specific terminology rules (ENV120 - Interface Meter):\n"
+        "- Use these terms: Threshold/문턱전압, Echo AMP/수신감도, ASF, 댐핑/Damping, Level/Distance\n"
+        "- DO NOT use these terms: EEA, Detection Area, Pipe Diameter, Light/Heavy\n"
+    )
+
+    # 제품별 프롬프트 조합
+    if "ENV200" in product:
+        base_prompt = (
+            "You are a WESS-Global product support specialist for ultrasonic sludge density meter (ENV200).\n\n"
+            + common_rules + env200_terms
+            + f"\n[Product Documents]\n{context}"
+        )
+    elif "ENV130" in product:
+        base_prompt = (
+            "You are a WESS-Global product support specialist for ultrasonic sludge interface meter (ENV130).\n\n"
+            + common_rules + env130_terms
+            + f"\n[Product Documents]\n{context}"
+        )
+    else:
+        base_prompt = (
+            "You are a WESS-Global product support specialist.\n\n"
+            + common_rules
+            + f"\n[Product Documents]\n{context}"
+        )
 
     # ENV120 전용 프롬프트
     env120_prompt = (
@@ -218,8 +254,9 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
         "- If truly no relevant information exists, say: '" + lang_cfg['unknown'] + "'\n"
         "- If the answer is ambiguous, say: '정확하지 않을 수 있습니다. 좀 더 확인이 필요합니다.'\n"
         "- But always try your best to find related information and provide a helpful answer before giving up.\n"
-        f"- {lang_cfg['lang_rule']}\n\n"
-        f"[Product Documents]\n{context}"
+        f"- {lang_cfg['lang_rule']}\n"
+        + env120_terms +
+        f"\n[Product Documents]\n{context}"
     )
 
     sys_prompt = env120_prompt if "ENV120" in product else base_prompt
