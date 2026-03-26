@@ -295,7 +295,6 @@ st.markdown("""
 
 MODELS = {
     "GPT-5.4 mini (빠름, 저렴)": "gpt-5.4-mini",
-    "GPT-5.4 nano (가장 저렴)": "gpt-5.4-nano",
     "GPT-5.4 (최고 성능)": "gpt-5.4",
 }
 
