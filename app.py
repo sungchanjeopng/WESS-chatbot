@@ -287,15 +287,10 @@ if "messages" not in st.session_state:
         {"role": "assistant", "content": lang_cfg["greeting"]}
     ]
 
-# 이전 메시지 표시 (복사 버튼 포함)
+# 이전 메시지 표시
 for i, msg in enumerate(st.session_state.messages):
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
-        # assistant 답변에 복사 버튼
-        if msg["role"] == "assistant" and i > 0:
-            copy_key = f"copy_{i}"
-            if st.button("📋 Copy", key=copy_key):
-                st.toast("Copied!")
 
 # 사용자 입력
 if prompt := st.chat_input(lang_cfg["placeholder"]):
