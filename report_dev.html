@@ -57,6 +57,20 @@
     <div class="fs">실시간 응답</div>
 </div>
 
+<h2>2-1. 작동 원리 (RAG)</h2>
+<div class="flow">
+    <div class="fs">① 문서 준비<br><small>매뉴얼/PPT를<br>500자씩 자름 (청크)</small></div><div class="fa">&rarr;</div>
+    <div class="fs">② Embedding<br><small>각 청크를<br>숫자(벡터)로 변환</small></div><div class="fa">&rarr;</div>
+    <div class="fs">③ Vector DB 저장<br><small>479개 벡터<br>ChromaDB에 저장</small></div>
+</div>
+<div class="flow">
+    <div class="fs">④ 질문 입력<br><small>고객 질문도<br>벡터로 변환</small></div><div class="fa">&rarr;</div>
+    <div class="fs">⑤ 유사도 검색<br><small>479개 중<br>관련 15개 선택</small></div><div class="fa">&rarr;</div>
+    <div class="fs hl">⑥ LLM 답변 생성<br><small>검색된 문서 보고<br>AI가 답변 작성</small></div><div class="fa">&rarr;</div>
+    <div class="fs">⑦ 스트리밍 응답<br><small>실시간으로<br>글자 출력</small></div>
+</div>
+<p style="font-size:8pt; color:#555;">①~③은 최초 1회, ④~⑦은 매 질문마다 실행됩니다.</p>
+
 <h2>3. 뭘로 만들었나</h2>
 <table>
     <tr><th>구성</th><th>기술</th><th>비용</th></tr>
