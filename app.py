@@ -299,37 +299,142 @@ st.set_page_config(
     layout="centered"
 )
 
-# 모바일 최적화 CSS
+# 토스 스타일 CSS
 st.markdown("""
 <style>
-    /* 모바일 반응형 */
-    @media (max-width: 768px) {
-        .stSelectbox > div { font-size: 14px; }
-        .stChatMessage { padding: 0.5rem; }
-        h1 { font-size: 1.3rem !important; }
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
-    /* 복사 버튼 스타일 */
-    .copy-btn {
-        background: none;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 2px 8px;
-        cursor: pointer;
-        font-size: 12px;
-        color: #888;
-        float: right;
-        margin-top: -10px;
-    }
-    .copy-btn:hover {
-        background: #f0f0f0;
-        color: #333;
+    /* 전체 배경 */
+    .stApp {
+        background-color: #f4f5f7 !important;
+        font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
 
     /* 전체 레이아웃 */
-    .block-container { max-width: 800px; padding-top: 1rem; }
+    .block-container {
+        max-width: 720px;
+        padding: 1.5rem 1rem 4rem;
+    }
 
-    /* Streamlit 하단 로고/메뉴 숨기기 */
+    /* 채팅 메시지 스타일 */
+    .stChatMessage {
+        background: white !important;
+        border-radius: 16px !important;
+        padding: 1rem 1.2rem !important;
+        margin-bottom: 0.8rem !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        border: none !important;
+    }
+
+    /* 사용자 메시지 */
+    [data-testid="stChatMessageUser"] {
+        background: #1B64DA !important;
+        color: white !important;
+        border-radius: 16px 16px 4px 16px !important;
+    }
+    [data-testid="stChatMessageUser"] p {
+        color: white !important;
+    }
+
+    /* AI 메시지 */
+    [data-testid="stChatMessageAssistant"] {
+        background: white !important;
+        border-radius: 16px 16px 16px 4px !important;
+    }
+
+    /* 입력창 */
+    .stChatInput {
+        border-radius: 24px !important;
+    }
+    .stChatInput > div {
+        border-radius: 24px !important;
+        border: 1.5px solid #e0e0e0 !important;
+        background: white !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    }
+    .stChatInput textarea {
+        font-family: 'Noto Sans KR', sans-serif !important;
+        font-size: 15px !important;
+    }
+
+    /* 셀렉트박스 */
+    .stSelectbox > div > div {
+        border-radius: 12px !important;
+        border: 1.5px solid #e0e0e0 !important;
+        background: white !important;
+        font-size: 13px !important;
+    }
+    .stSelectbox label {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        color: #8B95A1 !important;
+    }
+
+    /* 버튼 (새 대화) */
+    .stButton > button {
+        border-radius: 12px !important;
+        border: 1.5px solid #e0e0e0 !important;
+        background: white !important;
+        font-family: 'Noto Sans KR', sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+        color: #333 !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        background: #1B64DA !important;
+        color: white !important;
+        border-color: #1B64DA !important;
+    }
+
+    /* 캡션 */
+    .stCaption {
+        color: #8B95A1 !important;
+        font-size: 13px !important;
+    }
+
+    /* 마크다운 텍스트 */
+    .stMarkdown p {
+        font-size: 14.5px !important;
+        line-height: 1.7 !important;
+        color: #333 !important;
+    }
+
+    /* 코드 블록 */
+    code {
+        background: #f4f5f7 !important;
+        border-radius: 6px !important;
+        padding: 2px 6px !important;
+        font-size: 13px !important;
+    }
+
+    /* 테이블 */
+    table {
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+    th {
+        background: #f4f5f7 !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+    td {
+        font-size: 13px !important;
+    }
+
+    /* 스피너 */
+    .stSpinner {
+        color: #1B64DA !important;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 768px) {
+        .block-container { padding: 0.8rem 0.5rem 4rem; }
+        .stSelectbox > div > div { font-size: 12px !important; }
+        .stMarkdown p { font-size: 13.5px !important; }
+    }
+
+    /* Streamlit 기본 요소 숨기기 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
