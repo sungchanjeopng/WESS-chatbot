@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 client = OpenAI()
 
-DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "농도계")
+DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "농도계 (ENV200)")
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
 
@@ -154,7 +154,7 @@ def main():
     print(f"\n농도계 완료! 총 {total}개 청크 저장됨")
 
     # 계면계 컬렉션
-    INTERFACE_DIR = os.path.join(os.path.dirname(__file__), "..", "계면계")
+    INTERFACE_DIR = os.path.join(os.path.dirname(__file__), "..", "계면계 (ENV130)")
     if os.path.exists(INTERFACE_DIR):
         try:
             chroma_client.delete_collection("wess_interface")
