@@ -242,6 +242,11 @@ st.markdown("""
 
     /* 전체 레이아웃 */
     .block-container { max-width: 800px; padding-top: 1rem; }
+
+    /* Streamlit 하단 로고/메뉴 숨기기 */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
