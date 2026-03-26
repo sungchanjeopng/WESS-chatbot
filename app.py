@@ -193,22 +193,29 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
     # ENV200 (농도계) 전용 용어 규칙
     env200_terms = (
         "\nProduct-specific terminology rules (ENV200 - Density Meter):\n"
-        "- Use these terms: EEA, Detection Area, 농도/Density, 댐핑/Damping, 배관 외경/Pipe Diameter, 교정/Calibration\n"
-        "- DO NOT use these terms (they belong to interface meters): Threshold/문턱전압, Echo AMP/수신감도, ASF, Light/Heavy, Level/Distance\n"
+        "- Use these terms: EEA, Detection Area, 농도/Density, 댐핑/Damping, 배관 외경/Pipe Diameter, 교정/Calibration, AGC, Profile, Clamp-on, Spool-piece\n"
+        "- Units: %, ppm, mg/L, g/L\n"
+        "- Calibration: multi-point calibration (EEA ↔ Density)\n"
+        "- Channel: single\n"
+        "- DO NOT use these terms (they belong to interface meters): Threshold/문턱전압, Echo AMP/수신감도, ASF, Light/Heavy, Level/Distance, m/ft, CH1/CH2\n"
     )
 
     # ENV130 (계면계) 전용 용어 규칙
     env130_terms = (
         "\nProduct-specific terminology rules (ENV130 - Interface Meter):\n"
-        "- Use these terms: Threshold/문턱전압, Echo AMP/수신감도, ASF, Light/Heavy, 댐핑/Damping, Level/Distance\n"
-        "- DO NOT use these terms (they belong to density meters): EEA, Detection Area, Pipe Diameter\n"
+        "- Use these terms: Threshold/문턱전압, Echo AMP/수신감도, ASF, Light/Heavy, 댐핑/Damping, Level/Distance, Echo, CH1/CH2\n"
+        "- Units: m, ft\n"
+        "- Channel: dual (CH1/CH2)\n"
+        "- DO NOT use these terms (they belong to density meters): EEA, Detection Area, Pipe Diameter, AGC, Profile, Clamp-on, Spool-piece, %, ppm, mg/L, g/L\n"
     )
 
     # ENV120 (계면계) 전용 용어 규칙
     env120_terms = (
         "\nProduct-specific terminology rules (ENV120 - Interface Meter):\n"
-        "- Use these terms: Threshold/문턱전압, Echo AMP/수신감도, ASF, 댐핑/Damping, Level/Distance\n"
-        "- DO NOT use these terms: EEA, Detection Area, Pipe Diameter, Light/Heavy\n"
+        "- Use these terms: Threshold/문턱전압, Echo AMP/수신감도, ASF, 댐핑/Damping, Level/Distance, Echo\n"
+        "- Units: m, ft\n"
+        "- Channel: single\n"
+        "- DO NOT use these terms: EEA, Detection Area, Pipe Diameter, AGC, Profile, Clamp-on, Spool-piece, Light/Heavy, CH1/CH2, %, ppm, mg/L, g/L\n"
     )
 
     # 제품별 프롬프트 조합
