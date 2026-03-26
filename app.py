@@ -154,7 +154,7 @@ def init_clients():
     return openai_client, collections
 
 
-def search_docs(collection, openai_client, query, n_results=5):
+def search_docs(collection, openai_client, query, n_results=15):
     """질문과 관련된 문서 검색"""
     query_embedding = openai_client.embeddings.create(
         model="text-embedding-3-small",
