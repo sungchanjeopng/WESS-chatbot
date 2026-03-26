@@ -315,8 +315,8 @@ st.markdown("""
 
 
 MODELS = {
-    "GPT-5.4 mini (빠름, 저렴)": "gpt-5.4-mini",
-    "GPT-5.4 (최고 성능)": "gpt-5.4",
+    "WESS AI 1.0 mini": "gpt-5.4-mini",
+    "WESS AI 1.0": "gpt-5.4",
 }
 
 # 제품 / 언어 / 모델 / 새 대화 버튼
