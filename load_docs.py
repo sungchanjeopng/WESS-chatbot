@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 client = OpenAI()
 
-DOCS_DIR = os.path.join(os.path.dirname(__file__), "..")
+DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "농도계")
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
 
