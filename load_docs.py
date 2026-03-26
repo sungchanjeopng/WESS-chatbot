@@ -230,6 +230,13 @@ def main():
             if fl.endswith(".docx"):
                 e120files.append(("docx", os.path.join(ENV120_DIR, f)))
 
+        # ENV120 MD 파일 (docs_env120 폴더)
+        e120docs_dir = os.path.join(os.path.dirname(__file__), "docs_env120")
+        if os.path.exists(e120docs_dir):
+            for f in os.listdir(e120docs_dir):
+                if f.lower().endswith(".md"):
+                    e120files.append(("md", os.path.join(e120docs_dir, f)))
+
         if e120files:
             print(f"\n=== 계면계 ENV120 문서: {len(e120files)}개 ===")
             for ftype, fpath in e120files:
