@@ -142,7 +142,37 @@
         </div>
     </div>
 
-    <h2>4. 데이터 파이프라인 (문서 → 벡터DB)</h2>
+    <h2>4. 청크(Chunk)란?</h2>
+    <p>문서를 AI가 검색하기 좋게 <b>500자씩 잘라놓은 조각</b>입니다. 매뉴얼 100페이지를 통째로 AI에게 주면 비용이 25배, 속도가 10배 느려집니다. 그래서 500자씩 잘라서 저장해놓고, 질문이 들어오면 <b>479개 중 관련 있는 15개만 골라서</b> AI에게 넘깁니다.</p>
+    <div class="cols">
+        <div>
+            <h3>왜 500자인가?</h3>
+            <table>
+                <tr><th>크기</th><th>장점</th><th>단점</th></tr>
+                <tr><td>100자</td><td>검색 정확</td><td>문맥 끊김</td></tr>
+                <tr><td><b>500자 (현재)</b></td><td><b>검색 정확 + 문맥 유지</b></td><td><b>최적</b></td></tr>
+                <tr><td>2000자</td><td>문맥 충분</td><td>관련 없는 내용 섞임</td></tr>
+            </table>
+            <p style="font-size:7pt;">500자 = A4 약 1/3 페이지. 한 주제가 담기기에 적당한 크기.</p>
+        </div>
+        <div>
+            <h3>동작 예시: "수신감도 설정법?" 질문 시</h3>
+            <div style="font-size:7.5pt; margin:3px 0;">
+                <div style="background:#e8eaf6; border:1.5px solid #1a237e; border-radius:4px; padding:4px 6px; margin:2px 0;">
+                    <b>청크 #142 (선택)</b> 수신감도는 Echo AMP 메뉴에서 설정. 범위 1~50, 기본값 15...
+                </div>
+                <div style="background:#e8eaf6; border:1.5px solid #1a237e; border-radius:4px; padding:4px 6px; margin:2px 0;">
+                    <b>청크 #87 (선택)</b> 퀵 메뉴에서 EXIT 3초 → 수신감도 바로 조정 가능...
+                </div>
+                <div style="background:#f5f5f5; border:1px solid #ccc; border-radius:4px; padding:4px 6px; margin:2px 0; color:#999;">
+                    <b>청크 #231 (제외)</b> 릴레이 R1 접점닫힘 조건... → 관련 없음
+                </div>
+            </div>
+            <p style="font-size:7pt;">479개 중 관련 15개만 선택 → 정확하고 빠르고 저렴</p>
+        </div>
+    </div>
+
+    <h2>5. 데이터 파이프라인 (문서 → 벡터DB)</h2>
     <h3>4-1. 처리 흐름</h3>
     <div class="flow">
         <div class="fs">원본 문서<br><small>DOCX + PPTX</small></div><div class="fa">&rarr;</div>
@@ -184,10 +214,10 @@
 <div class="page">
     <div class="header">
         <h1>WESSGLOBAL AI 챗봇 개발 상세 보고서</h1>
-        <div class="sub">용어 구분 / 프롬프트 / 개발 과정 (2/4)<br>2026.03 | WESSGLOBAL Inc.</div>
+        <div class="sub">용어 구분 / 프롬프트 / 개발 과정 (2/5)<br>2026.03 | WESSGLOBAL Inc.</div>
     </div>
 
-    <h2>5. 소스코드 기반 MD 파일 생성</h2>
+    <h2>6. 소스코드 기반 MD 파일 생성</h2>
     <p>펌웨어 소스코드의 헤더파일(.h)을 분석하여, 고객이 이해할 수 있는 기술 문서(MD)로 변환했습니다. <b>소스코드(함수명, 변수명, 코드 스니펫)는 포함하지 않았습니다.</b></p>
     <div class="cols">
         <div>
@@ -216,7 +246,7 @@
         </div>
     </div>
 
-    <h2>6. 제품별 용어 구분 규칙</h2>
+    <h2>7. 제품별 용어 구분 규칙</h2>
     <p>AI가 다른 제품의 전문 용어를 섞어 쓰지 않도록, 시스템 프롬프트에 제품별 사용/금지 용어를 정의했습니다.</p>
     <table>
         <tr><th>용어</th><th>ENV200 (농도계)</th><th>ENV130 (계면계)</th><th>ENV120 (계면계)</th><th>설명</th></tr>
@@ -234,7 +264,7 @@
         <tr><td>Damping/댐핑</td><td>O</td><td>O</td><td>O</td><td>공통 (출력 안정화)</td></tr>
     </table>
 
-    <h2>7. AI 프롬프트 엔지니어링</h2>
+    <h2>8. AI 프롬프트 엔지니어링</h2>
     <div class="cols">
         <div>
             <h3>전 제품 공통 프롬프트</h3>
@@ -266,7 +296,7 @@
         </div>
     </div>
 
-    <h2>8. 개발 과정</h2>
+    <h2>9. 개발 과정</h2>
     <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><b>1. 기획 및 설계</b> — 제품 문서 현황 파악, RAG 아키텍처 설계, LLM 모델 비교(GPT-5.4 mini/nano/풀), 비용 분석, Streamlit Cloud 배포 결정</div></div>
     <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><b>2. 문서 수집 및 검증</b> — 매뉴얼(DOCX), 데이터시트, PPT 교육자료 수집. python-docx로 텍스트 추출 테스트, 테이블/단락 구조 확인</div></div>
     <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><b>3. 펌웨어 소스코드 분석</b> — C2S-211(ENV200), C1D-330(ENV130), C1S-210(ENV120) 헤더파일에서 파라미터/메뉴구조/측정원리 추출 → MD 변환. #if 0 비활성 기능 제외</div></div>
@@ -283,10 +313,10 @@
 <div class="page">
     <div class="header">
         <h1>WESSGLOBAL AI 챗봇 개발 상세 보고서</h1>
-        <div class="sub">비용 / 코드 구조 / 동작 흐름 (3/4)<br>2026.03 | WESSGLOBAL Inc.</div>
+        <div class="sub">비용 / 코드 구조 / 동작 흐름 (3/5)<br>2026.03 | WESSGLOBAL Inc.</div>
     </div>
 
-    <h2>9. 비용 분석</h2>
+    <h2>10. 비용 분석</h2>
     <div class="cols">
         <div>
             <h3>인프라 비용</h3>
@@ -328,7 +358,7 @@
         <tr><td>답변 (출력)</td><td>~100~800</td><td>답변 상세도에 따라</td></tr>
     </table>
 
-    <h2>10. 프로젝트 구조</h2>
+    <h2>11. 프로젝트 구조</h2>
     <div class="cols">
         <div>
             <h3>코드 구조</h3>
@@ -386,7 +416,7 @@
         </div>
     </div>
 
-    <h2>11. 코드 동작 흐름</h2>
+    <h2>12. 코드 동작 흐름</h2>
     <div class="cols">
         <div>
             <h3>11-1. 문서 로드 (load_docs.py, 최초 1회)</h3>
@@ -440,10 +470,10 @@ openai.chat.completions.create(
 <div class="page">
     <div class="header">
         <h1>WESSGLOBAL AI 챗봇 개발 상세 보고서</h1>
-        <div class="sub">배포 / 보안 / 검색 설정 / 성과 (4/4)<br>2026.03 | WESSGLOBAL Inc.</div>
+        <div class="sub">배포 / 보안 / 검색 설정 / 성과 (4/5)<br>2026.03 | WESSGLOBAL Inc.</div>
     </div>
 
-    <h2>12. 배포 현황</h2>
+    <h2>13. 배포 현황</h2>
     <table>
         <tr><th>항목</th><th>현재 설정</th></tr>
         <tr><td>배포 플랫폼</td><td>Streamlit Cloud (무료)</td></tr>
@@ -454,7 +484,7 @@ openai.chat.completions.create(
         <tr><td>HTTPS</td><td>Streamlit Cloud 자동 제공</td></tr>
     </table>
 
-    <h2>13. 보안</h2>
+    <h2>14. 보안</h2>
     <table>
         <tr><th>위협</th><th>대응</th></tr>
         <tr><td>API 키 노출</td><td>.env 파일 분리, .gitignore로 GitHub 제외, Streamlit Secrets 별도 등록</td></tr>
@@ -464,7 +494,7 @@ openai.chat.completions.create(
         <tr><td>과도한 사용</td><td>모델 선택 기능으로 비용 통제 가능</td></tr>
     </table>
 
-    <h2>14. 검색 설정 상세</h2>
+    <h2>15. 검색 설정 상세</h2>
     <table>
         <tr><th>설정</th><th>값</th><th>설명</th></tr>
         <tr><td>검색 수</td><td>Top 15</td><td>질문과 가장 유사한 청크 15개를 AI에게 전달</td></tr>
@@ -477,13 +507,13 @@ openai.chat.completions.create(
         <tr><td>벡터DB 인덱스</td><td>HNSW</td><td>ChromaDB 기본 ANN 알고리즘</td></tr>
     </table>
 
-    <h2>15. 지원 언어 (13개)</h2>
+    <h2>16. 지원 언어 (13개)</h2>
     <p>각 언어별로 인사말, 캡션, 입력 안내, 로딩 메시지, 오류 안내가 모두 현지화되어 있습니다.</p>
     <p>
         <span class="badge">한국어</span><span class="badge">English</span><span class="badge">日本語</span><span class="badge">中文</span><span class="badge">Español</span><span class="badge">Français</span><span class="badge">Deutsch</span><span class="badge">Português</span><span class="badge">Tiếng Việt</span><span class="badge">ภาษาไทย</span><span class="badge">Bahasa Indonesia</span><span class="badge">العربية</span><span class="badge">Русский</span>
     </p>
 
-    <h2>16. 벡터DB 컬렉션 구조</h2>
+    <h2>17. 벡터DB 컬렉션 구조</h2>
     <table>
         <tr><th>컬렉션명</th><th>제품</th><th>읽는 폴더</th><th>파일 종류</th><th>청크 수</th></tr>
         <tr><td>wess_density</td><td>ENV200 (농도계)</td><td>농도계 (ENV200)/ + docs/</td><td>DOCX + PPTX + MD</td><td>186</td></tr>
@@ -492,7 +522,7 @@ openai.chat.completions.create(
         <tr><td colspan="4"><b>합계</b></td><td><b>479</b></td></tr>
     </table>
 
-    <h2>17. 핵심 성과</h2>
+    <h2>18. 핵심 성과</h2>
     <div class="card">
         <p><b>월 ~$20(약 27,000원)으로 3개 제품, 13개 언어, 24시간 AI 고객 지원 시스템을 구축했습니다.</b></p>
         <p>제품 매뉴얼, 엔지니어 매뉴얼, PPT 교육자료, 펌웨어 소스코드 분석까지 총 479개 청크를 학습시켰습니다. 제품별 전용 용어 규칙으로 농도계/계면계 용어 혼용을 방지하고, GPTs 수준의 프롬프트 엔지니어링을 적용했습니다. 문서 추가 시 load_docs.py 실행 + git push만으로 즉시 반영됩니다.</p>
