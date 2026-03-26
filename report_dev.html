@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>WESSGLOBAL AI 챗봇 개발 보고서</title>
+    <style>
+        @page { size: A4; margin: 15mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Malgun Gothic', sans-serif; color: #222; font-size: 10pt; line-height: 1.6; }
+
+        .header { background: #1a237e; color: white; padding: 18px 24px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
+        .header h1 { font-size: 17pt; }
+        .header p { font-size: 9pt; opacity: 0.8; margin-top: 4px; }
+
+        h2 { font-size: 12pt; color: #1a237e; margin: 16px 0 8px; padding-left: 10px; border-left: 4px solid #1a237e; }
+
+        table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 9pt; }
+        th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; }
+        th { background: #e8eaf6; color: #1a237e; }
+
+        .flow { display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .fs { background: #e8eaf6; border: 1.5px solid #5c6bc0; border-radius: 8px; padding: 6px 12px; text-align: center; font-size: 9pt; }
+        .fs.hl { background: #1a237e; color: white; }
+        .fa { font-size: 14pt; color: #5c6bc0; margin: 0 4px; }
+
+        .nums { display: flex; gap: 10px; margin: 10px 0; }
+        .num { flex: 1; background: linear-gradient(135deg,#e8eaf6,#c5cae9); border-radius: 8px; padding: 12px; text-align: center; }
+        .num .v { font-size: 18pt; font-weight: 700; color: #1a237e; }
+        .num .l { font-size: 8pt; color: #555; margin-top: 2px; }
+
+        .footer { text-align: center; color: #aaa; font-size: 8pt; margin-top: 16px; }
+    </style>
+</head>
+<body>
+<div style="width:180mm;">
+
+<div class="header">
+    <h1>WESSGLOBAL AI 챗봇 개발 보고서</h1>
+    <p>2026.03 | WESSGLOBAL Inc.</p>
+</div>
+
+<h2>1. 뭘 만들었나</h2>
+<p>고객이 우리 제품에 대해 질문하면, <b>제품 매뉴얼/기술문서를 AI가 검색해서 즉시 답변</b>하는 웹 챗봇.</p>
+
+<div class="nums">
+    <div class="num"><div class="v">3개</div><div class="l">지원 제품<br>ENV200 / ENV130 / ENV120</div></div>
+    <div class="num"><div class="v">13개</div><div class="l">지원 언어</div></div>
+    <div class="num"><div class="v">479개</div><div class="l">학습 문서 청크</div></div>
+    <div class="num"><div class="v">~$20/월</div><div class="l">운영 비용</div></div>
+</div>
+
+<h2>2. 어떻게 동작하나</h2>
+<div class="flow">
+    <div class="fs">고객 질문</div><div class="fa">&rarr;</div>
+    <div class="fs">관련 문서 15개 검색</div><div class="fa">&rarr;</div>
+    <div class="fs hl">AI가 문서 보고 답변</div><div class="fa">&rarr;</div>
+    <div class="fs">실시간 응답</div>
+</div>
+
+<h2>3. 뭘로 만들었나</h2>
+<table>
+    <tr><th>구성</th><th>기술</th><th>비용</th></tr>
+    <tr><td>AI 모델</td><td>WESS AI 1.0 nano / mini / 1.0 (GPT-5.4 기반)</td><td>1건당 1~70원</td></tr>
+    <tr><td>문서 검색</td><td>ChromaDB (벡터DB, Top 15 검색)</td><td>무료</td></tr>
+    <tr><td>웹 UI</td><td>Streamlit</td><td>무료</td></tr>
+    <tr><td>배포</td><td>Streamlit Cloud → AWS 이전 예정</td><td>무료 → $5/월</td></tr>
+</table>
+
+<h2>4. 어떤 자료를 학습시켰나</h2>
+<table>
+    <tr><th>제품</th><th>학습 자료</th><th>청크</th></tr>
+    <tr><td>농도계 (ENV200)</td><td>매뉴얼 2 + 데이터시트 2 + PPT 7 + 소스코드 MD 7</td><td>186</td></tr>
+    <tr><td>계면계 (ENV130)</td><td>매뉴얼 1 + 데이터시트 1 + 소스코드 MD 5</td><td>52</td></tr>
+    <tr><td>계면계 (ENV120)</td><td>매뉴얼 2 + 엔지니어매뉴얼 1 + 데이터시트 2 + PPT 9 + 소스코드 MD 4</td><td>241</td></tr>
+</table>
+
+<h2>5. 비용</h2>
+<table>
+    <tr><th>모델</th><th>1건당</th><th>월 100건/일</th><th>성능</th></tr>
+    <tr><td>WESS AI 1.0 nano</td><td>1~7원</td><td>~$7 (9,500원)</td><td>ChatGPT 무료 제한초과 수준</td></tr>
+    <tr><td><b>WESS AI 1.0 mini</b> (기본)</td><td>3~20원</td><td>~$20 (27,000원)</td><td>ChatGPT 무료 수준</td></tr>
+    <tr><td>WESS AI 1.0</td><td>10~70원</td><td>~$80 (108,000원)</td><td>ChatGPT 유료 수준</td></tr>
+</table>
+
+<div class="footer">&copy; 2026 WESSGLOBAL Inc. | AI 챗봇 개발 보고서 | WESSGLOBAL Inc.</div>
+</div>
+</body>
+</html>

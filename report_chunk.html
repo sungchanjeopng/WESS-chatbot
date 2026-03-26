@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>청크(Chunk)란?</title>
+    <style>
+        @page { size: A4; margin: 15mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Malgun Gothic', sans-serif; color: #222; font-size: 10pt; line-height: 1.6; }
+
+        .header { background: #1a237e; color: white; padding: 16px 22px; border-radius: 8px; margin-bottom: 14px; text-align: center; }
+        .header h1 { font-size: 16pt; }
+        .header p { font-size: 9pt; opacity: 0.8; margin-top: 3px; }
+
+        h2 { font-size: 12pt; color: #1a237e; margin: 14px 0 6px; padding-left: 9px; border-left: 4px solid #1a237e; }
+        p { margin-bottom: 5px; }
+
+        .card { background: #f8f9ff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 16px; margin: 8px 0; }
+        .card-warn { background: #fff8e1; border: 1.5px solid #ffb300; border-radius: 8px; padding: 12px 16px; margin: 8px 0; }
+
+        .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .flow { display: flex; align-items: center; justify-content: center; margin: 10px 0; }
+        .fs { background: #e8eaf6; border: 1.5px solid #5c6bc0; border-radius: 8px; padding: 8px 14px; text-align: center; font-size: 9pt; }
+        .fs.hl { background: #1a237e; color: white; }
+        .fa { font-size: 14pt; color: #5c6bc0; margin: 0 5px; }
+
+        .chunk-box { border: 2px solid #5c6bc0; border-radius: 8px; padding: 10px; margin: 4px 0; font-size: 9pt; background: white; }
+        .chunk-box.active { border-color: #1a237e; background: #e8eaf6; }
+        .chunk-label { font-size: 7.5pt; color: #5c6bc0; font-weight: 600; margin-bottom: 3px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 9pt; }
+        th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; }
+        th { background: #e8eaf6; color: #1a237e; }
+
+        .nums { display: flex; gap: 10px; margin: 8px 0; }
+        .num { flex: 1; background: linear-gradient(135deg,#e8eaf6,#c5cae9); border-radius: 8px; padding: 10px; text-align: center; }
+        .num .v { font-size: 16pt; font-weight: 700; color: #1a237e; }
+        .num .l { font-size: 8pt; color: #555; }
+
+        .footer { text-align: center; color: #aaa; font-size: 8pt; margin-top: 14px; }
+    </style>
+</head>
+<body>
+<div style="width:180mm;">
+
+<div class="header">
+    <h1>청크(Chunk)란?</h1>
+    <p>AI 챗봇이 문서를 검색하는 단위 | 2026.03 | WESSGLOBAL Inc.</p>
+</div>
+
+<h2>1. 청크가 뭔가요?</h2>
+<p>문서를 AI가 검색하기 좋게 <b>500자씩 잘라놓은 조각</b>입니다.</p>
+
+<div class="card">
+    <p>매뉴얼이 100페이지라고 하면, AI에게 100페이지를 통째로 주면 너무 많아서 원하는 부분을 찾기 어렵습니다. 그래서 <b>500자씩 잘라서 번호를 붙여 저장</b>해놓고, 질문이 들어오면 <b>관련 있는 조각만 골라서</b> AI에게 넘겨줍니다.</p>
+</div>
+
+<h2>2. 왜 자르나요?</h2>
+<div class="cols">
+    <div class="card-warn">
+        <p><b>자르지 않으면?</b></p>
+        <p>100페이지 전체를 AI에게 매번 보냄 → <b>비용 25배</b>, <b>속도 10배 느림</b>, 관련 없는 내용도 섞임</p>
+    </div>
+    <div class="card">
+        <p><b>잘라놓으면?</b></p>
+        <p>479개 조각 중 관련 있는 15개만 AI에게 보냄 → <b>비용 저렴</b>, <b>속도 빠름</b>, 정확한 답변</p>
+    </div>
+</div>
+
+<h2>3. 어떻게 동작하나요?</h2>
+<p>예시: 고객이 <b>"수신감도 어떻게 설정해?"</b> 라고 질문하면:</p>
+
+<div class="flow">
+    <div class="fs">479개 청크</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs hl">AI가 유사도 검색</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs">관련 15개만 선택</div>
+    <div class="fa">&rarr;</div>
+    <div class="fs hl">GPT가 읽고 답변</div>
+</div>
+
+<div class="cols">
+    <div>
+        <div class="chunk-label">청크 #142 (선택됨)</div>
+        <div class="chunk-box active">수신감도는 Echo AMP 메뉴에서 설정합니다. 범위는 1~50이며 기본값은 15입니다. 파형 화면을 보면서...</div>
+        <div class="chunk-label">청크 #87 (선택됨)</div>
+        <div class="chunk-box active">퀵 메뉴에서 EXIT 3초 누르면 수신감도를 바로 조정할 수 있습니다. ▲/▼로 값을 변경하고...</div>
+        <div class="chunk-label">청크 #231 (선택 안 됨)</div>
+        <div class="chunk-box">릴레이 R1은 접점닫힘 조건으로 동작합니다. ACT 값 이상이면 ON...</div>
+    </div>
+    <div>
+        <p>479개 중 <b>질문과 가장 관련 있는 15개</b>만 골라서 AI에게 넘깁니다.</p>
+        <p>위 예시에서:</p>
+        <ul style="margin: 5px 0 0 18px;">
+            <li>청크 #142 → 수신감도 설정 방법 ✓ 선택</li>
+            <li>청크 #87 → 퀵 메뉴 접근법 ✓ 선택</li>
+            <li>청크 #231 → 릴레이 내용 ✗ 관련 없어서 제외</li>
+        </ul>
+        <p style="margin-top: 8px;">이렇게 <b>필요한 것만 골라서 AI에게 주기 때문에</b> 정확하고 빠르고 저렴합니다.</p>
+    </div>
+</div>
+
+<h2>4. 청크 크기는 왜 500자인가요?</h2>
+<table>
+    <tr><th>크기</th><th>장점</th><th>단점</th></tr>
+    <tr><td>너무 작으면 (100자)</td><td>검색 정확</td><td>문맥이 끊겨서 답변 불완전</td></tr>
+    <tr><td><b>적당하면 (500자)</b></td><td><b>검색 정확 + 문맥 유지</b></td><td><b>최적</b></td></tr>
+    <tr><td>너무 크면 (2000자)</td><td>문맥 충분</td><td>관련 없는 내용 섞임, 비용 증가</td></tr>
+</table>
+<p>500자는 A4 용지 약 <b>1/3 페이지</b> 분량입니다. 한 주제가 담기기에 적당한 크기입니다.</p>
+
+<h2>5. 우리 챗봇의 청크 현황</h2>
+<div class="nums">
+    <div class="num"><div class="v">479</div><div class="l">전체 청크 수</div></div>
+    <div class="num"><div class="v">500자</div><div class="l">청크 크기</div></div>
+    <div class="num"><div class="v">15개</div><div class="l">질문당 검색 수</div></div>
+    <div class="num"><div class="v">3개</div><div class="l">제품별 분리</div></div>
+</div>
+
+<table>
+    <tr><th>제품</th><th>청크 수</th><th>학습 문서</th></tr>
+    <tr><td>농도계 (ENV200)</td><td>186개</td><td>매뉴얼, 데이터시트, PPT, 소스코드 분석 MD</td></tr>
+    <tr><td>계면계 (ENV130)</td><td>52개</td><td>매뉴얼, 데이터시트, 소스코드 분석 MD</td></tr>
+    <tr><td>계면계 (ENV120)</td><td>241개</td><td>매뉴얼, 엔지니어 매뉴얼, 데이터시트, PPT, 소스코드 분석 MD</td></tr>
+</table>
+
+<p>제품을 선택하면 <b>해당 제품 청크에서만 검색</b>합니다. 농도계를 선택하면 186개에서만, 계면계 ENV120을 선택하면 241개에서만 검색하여 다른 제품 내용이 섞이지 않습니다.</p>
+
+<div class="footer">&copy; 2026 WESSGLOBAL Inc.</div>
+</div>
+</body>
+</html>

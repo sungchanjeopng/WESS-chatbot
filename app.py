@@ -315,6 +315,7 @@ st.markdown("""
 
 
 MODELS = {
+    "WESS AI 1.0 nano": "gpt-5.4-nano",
     "WESS AI 1.0 mini": "gpt-5.4-mini",
     "WESS AI 1.0": "gpt-5.4",
 }
@@ -326,7 +327,7 @@ with col1:
 with col2:
     lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=0)
 with col3:
-    model_name = st.selectbox("Model", list(MODELS.keys()), index=0)
+    model_name = st.selectbox("Model", list(MODELS.keys()), index=1)
 with col4:
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(LANGUAGES[lang]["new_chat"], use_container_width=True):
