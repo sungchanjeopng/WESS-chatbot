@@ -1,4 +1,4 @@
-"""WESS-Global 제품 AI 챗봇 (Streamlit)"""
+"""WESSGLOBAL 제품 AI 챗봇 (Streamlit)"""
 import os
 import streamlit as st
 import chromadb
@@ -21,121 +21,121 @@ PRODUCTS = {
 
 LANGUAGES = {
     "한국어": {
-        "greeting": "안녕하세요! WESS-Global 제품에 대해 궁금한 점을 물어보세요.",
+        "greeting": "안녕하세요! WESSGLOBAL 제품에 대해 궁금한 점을 물어보세요.",
         "caption": "ENV200 초음파 슬러지 농도계에 대해 궁금한 점을 물어보세요.",
         "placeholder": "질문을 입력하세요...",
         "spinner": "답변을 생성하고 있습니다...",
         "new_chat": "새 대화",
         "lang_rule": "반드시 한국어로만 답변하세요. 영어 문서를 참조하더라도 한국어로 번역하여 답변하세요. 제품명, 모델명 등 고유명사만 영어 그대로 사용하세요.",
-        "unknown": "해당 정보는 확인되지 않습니다. 추가 문의는 WESS-Global 고객지원(041-584-8820)으로 연락해주세요.",
+        "unknown": "해당 정보는 확인되지 않습니다. 추가 문의는 WESSGLOBAL 고객지원(041-584-8820)으로 연락해주세요.",
     },
     "English": {
-        "greeting": "Hello! Ask me anything about WESS-Global products.",
+        "greeting": "Hello! Ask me anything about WESSGLOBAL products.",
         "caption": "Ask any questions about the ENV200 Ultrasonic Sludge Density Meter.",
         "placeholder": "Type your question...",
         "spinner": "Generating answer...",
         "new_chat": "New Chat",
         "lang_rule": "You must answer only in English. Even if the document is in Korean, translate and answer in English. Keep product names and model names as-is.",
-        "unknown": "The requested information could not be found. Please contact WESS-Global support at 041-584-8820.",
+        "unknown": "The requested information could not be found. Please contact WESSGLOBAL support at 041-584-8820.",
     },
     "日本語": {
-        "greeting": "こんにちは！WESS-Global製品についてお気軽にご質問ください。",
+        "greeting": "こんにちは！WESSGLOBAL製品についてお気軽にご質問ください。",
         "caption": "ENV200超音波スラッジ濃度計についてご質問ください。",
         "placeholder": "質問を入力してください...",
         "spinner": "回答を生成しています...",
         "new_chat": "新しい会話",
         "lang_rule": "必ず日本語のみで回答してください。英語や韓国語の文書を参照しても日本語に翻訳して回答してください。製品名・モデル名はそのまま英語で使用してください。",
-        "unknown": "該当情報は確認できませんでした。詳細はWESS-Globalサポート(041-584-8820)までお問い合わせください。",
+        "unknown": "該当情報は確認できませんでした。詳細はWESSGLOBALサポート(041-584-8820)までお問い合わせください。",
     },
     "中文": {
-        "greeting": "您好！欢迎咨询WESS-Global产品相关问题。",
+        "greeting": "您好！欢迎咨询WESSGLOBAL产品相关问题。",
         "caption": "关于ENV200超声波污泥浓度计，请随时提问。",
         "placeholder": "请输入您的问题...",
         "spinner": "正在生成回答...",
         "new_chat": "新对话",
         "lang_rule": "必须仅用中文回答。即使参考英文或韩文文档，也请翻译成中文回答。产品名称和型号保持英文原样。",
-        "unknown": "未找到相关信息。如需进一步咨询，请联系WESS-Global客服(041-584-8820)。",
+        "unknown": "未找到相关信息。如需进一步咨询，请联系WESSGLOBAL客服(041-584-8820)。",
     },
     "Español": {
-        "greeting": "¡Hola! Pregúnteme sobre los productos de WESS-Global.",
+        "greeting": "¡Hola! Pregúnteme sobre los productos de WESSGLOBAL.",
         "caption": "Haga preguntas sobre el medidor de densidad de lodos ultrasónico ENV200.",
         "placeholder": "Escriba su pregunta...",
         "spinner": "Generando respuesta...",
         "new_chat": "Nueva conversación",
         "lang_rule": "Debes responder solo en español. Aunque el documento esté en otro idioma, traduce y responde en español. Mantén los nombres de productos y modelos en su forma original.",
-        "unknown": "No se encontró la información solicitada. Contacte al soporte de WESS-Global al 041-584-8820.",
+        "unknown": "No se encontró la información solicitada. Contacte al soporte de WESSGLOBAL al 041-584-8820.",
     },
     "Français": {
-        "greeting": "Bonjour ! Posez vos questions sur les produits WESS-Global.",
+        "greeting": "Bonjour ! Posez vos questions sur les produits WESSGLOBAL.",
         "caption": "Posez vos questions sur le densimètre à ultrasons ENV200.",
         "placeholder": "Tapez votre question...",
         "spinner": "Génération de la réponse...",
         "new_chat": "Nouvelle conversation",
         "lang_rule": "Vous devez répondre uniquement en français. Même si le document est dans une autre langue, traduisez et répondez en français. Gardez les noms de produits et modèles tels quels.",
-        "unknown": "L'information demandée n'a pas été trouvée. Veuillez contacter le support WESS-Global au 041-584-8820.",
+        "unknown": "L'information demandée n'a pas été trouvée. Veuillez contacter le support WESSGLOBAL au 041-584-8820.",
     },
     "Deutsch": {
-        "greeting": "Hallo! Fragen Sie mich zu WESS-Global Produkten.",
+        "greeting": "Hallo! Fragen Sie mich zu WESSGLOBAL Produkten.",
         "caption": "Stellen Sie Fragen zum Ultraschall-Schlammkonzentrationsmesser ENV200.",
         "placeholder": "Geben Sie Ihre Frage ein...",
         "spinner": "Antwort wird generiert...",
         "new_chat": "Neues Gespräch",
         "lang_rule": "Sie müssen ausschließlich auf Deutsch antworten. Auch wenn das Dokument in einer anderen Sprache ist, übersetzen und antworten Sie auf Deutsch. Produktnamen und Modellbezeichnungen bleiben im Original.",
-        "unknown": "Die angeforderten Informationen wurden nicht gefunden. Bitte kontaktieren Sie den WESS-Global Support unter 041-584-8820.",
+        "unknown": "Die angeforderten Informationen wurden nicht gefunden. Bitte kontaktieren Sie den WESSGLOBAL Support unter 041-584-8820.",
     },
     "Português": {
-        "greeting": "Olá! Pergunte sobre os produtos da WESS-Global.",
+        "greeting": "Olá! Pergunte sobre os produtos da WESSGLOBAL.",
         "caption": "Faça perguntas sobre o medidor de densidade ultrassônico ENV200.",
         "placeholder": "Digite sua pergunta...",
         "spinner": "Gerando resposta...",
         "new_chat": "Nova conversa",
         "lang_rule": "Você deve responder apenas em português. Mesmo que o documento esteja em outro idioma, traduza e responda em português. Mantenha nomes de produtos e modelos como estão.",
-        "unknown": "A informação solicitada não foi encontrada. Entre em contato com o suporte WESS-Global pelo 041-584-8820.",
+        "unknown": "A informação solicitada não foi encontrada. Entre em contato com o suporte WESSGLOBAL pelo 041-584-8820.",
     },
     "Tiếng Việt": {
-        "greeting": "Xin chào! Hãy hỏi tôi về sản phẩm WESS-Global.",
+        "greeting": "Xin chào! Hãy hỏi tôi về sản phẩm WESSGLOBAL.",
         "caption": "Đặt câu hỏi về máy đo nồng độ bùn siêu âm ENV200.",
         "placeholder": "Nhập câu hỏi của bạn...",
         "spinner": "Đang tạo câu trả lời...",
         "new_chat": "Cuộc trò chuyện mới",
         "lang_rule": "Bạn phải trả lời chỉ bằng tiếng Việt. Ngay cả khi tài liệu bằng ngôn ngữ khác, hãy dịch và trả lời bằng tiếng Việt. Giữ nguyên tên sản phẩm và model.",
-        "unknown": "Không tìm thấy thông tin yêu cầu. Vui lòng liên hệ hỗ trợ WESS-Global theo số 041-584-8820.",
+        "unknown": "Không tìm thấy thông tin yêu cầu. Vui lòng liên hệ hỗ trợ WESSGLOBAL theo số 041-584-8820.",
     },
     "ภาษาไทย": {
-        "greeting": "สวัสดี! สอบถามเกี่ยวกับผลิตภัณฑ์ WESS-Global ได้เลย",
+        "greeting": "สวัสดี! สอบถามเกี่ยวกับผลิตภัณฑ์ WESSGLOBAL ได้เลย",
         "caption": "สอบถามเกี่ยวกับเครื่องวัดความเข้มข้นตะกอนอัลตราโซนิก ENV200",
         "placeholder": "พิมพ์คำถามของคุณ...",
         "spinner": "กำลังสร้างคำตอบ...",
         "new_chat": "แชทใหม่",
         "lang_rule": "ต้องตอบเป็นภาษาไทยเท่านั้น แม้เอกสารจะเป็นภาษาอื่น ให้แปลและตอบเป็นภาษาไทย ชื่อผลิตภัณฑ์และรุ่นให้คงภาษาอังกฤษ",
-        "unknown": "ไม่พบข้อมูลที่ร้องขอ กรุณาติดต่อฝ่ายสนับสนุน WESS-Global ที่ 041-584-8820",
+        "unknown": "ไม่พบข้อมูลที่ร้องขอ กรุณาติดต่อฝ่ายสนับสนุน WESSGLOBAL ที่ 041-584-8820",
     },
     "Bahasa Indonesia": {
-        "greeting": "Halo! Tanyakan tentang produk WESS-Global.",
+        "greeting": "Halo! Tanyakan tentang produk WESSGLOBAL.",
         "caption": "Ajukan pertanyaan tentang pengukur kepadatan lumpur ultrasonik ENV200.",
         "placeholder": "Ketik pertanyaan Anda...",
         "spinner": "Membuat jawaban...",
         "new_chat": "Obrolan baru",
         "lang_rule": "Anda harus menjawab hanya dalam Bahasa Indonesia. Meskipun dokumen dalam bahasa lain, terjemahkan dan jawab dalam Bahasa Indonesia. Pertahankan nama produk dan model apa adanya.",
-        "unknown": "Informasi yang diminta tidak ditemukan. Silakan hubungi dukungan WESS-Global di 041-584-8820.",
+        "unknown": "Informasi yang diminta tidak ditemukan. Silakan hubungi dukungan WESSGLOBAL di 041-584-8820.",
     },
     "العربية": {
-        "greeting": "مرحباً! اسألني عن منتجات WESS-Global.",
+        "greeting": "مرحباً! اسألني عن منتجات WESSGLOBAL.",
         "caption": "اطرح أسئلتك حول جهاز قياس كثافة الحمأة بالموجات فوق الصوتية ENV200.",
         "placeholder": "اكتب سؤالك...",
         "spinner": "جاري إنشاء الإجابة...",
         "new_chat": "محادثة جديدة",
         "lang_rule": "يجب الإجابة باللغة العربية فقط. حتى لو كانت الوثيقة بلغة أخرى، قم بالترجمة والإجابة بالعربية. احتفظ بأسماء المنتجات والطرازات كما هي.",
-        "unknown": "لم يتم العثور على المعلومات المطلوبة. يرجى الاتصال بدعم WESS-Global على الرقم 041-584-8820.",
+        "unknown": "لم يتم العثور على المعلومات المطلوبة. يرجى الاتصال بدعم WESSGLOBAL على الرقم 041-584-8820.",
     },
     "Русский": {
-        "greeting": "Здравствуйте! Задавайте вопросы о продукции WESS-Global.",
+        "greeting": "Здравствуйте! Задавайте вопросы о продукции WESSGLOBAL.",
         "caption": "Задавайте вопросы об ультразвуковом измерителе плотности осадка ENV200.",
         "placeholder": "Введите ваш вопрос...",
         "spinner": "Генерация ответа...",
         "new_chat": "Новый чат",
         "lang_rule": "Отвечайте только на русском языке. Даже если документ на другом языке, переведите и ответьте на русском. Названия продуктов и моделей оставляйте на английском.",
-        "unknown": "Запрашиваемая информация не найдена. Свяжитесь со службой поддержки WESS-Global по номеру 041-584-8820.",
+        "unknown": "Запрашиваемая информация не найдена. Свяжитесь со службой поддержки WESSGLOBAL по номеру 041-584-8820.",
     },
 }
 
@@ -221,26 +221,26 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
     # 제품별 프롬프트 조합
     if "ENV200" in product:
         base_prompt = (
-            "You are a WESS-Global product support specialist for ultrasonic sludge density meter (ENV200).\n\n"
+            "You are a WESSGLOBAL product support specialist for ultrasonic sludge density meter (ENV200).\n\n"
             + common_rules + env200_terms
             + f"\n[Product Documents]\n{context}"
         )
     elif "ENV130" in product:
         base_prompt = (
-            "You are a WESS-Global product support specialist for ultrasonic sludge interface meter (ENV130).\n\n"
+            "You are a WESSGLOBAL product support specialist for ultrasonic sludge interface meter (ENV130).\n\n"
             + common_rules + env130_terms
             + f"\n[Product Documents]\n{context}"
         )
     else:
         base_prompt = (
-            "You are a WESS-Global product support specialist.\n\n"
+            "You are a WESSGLOBAL product support specialist.\n\n"
             + common_rules
             + f"\n[Product Documents]\n{context}"
         )
 
     # ENV120 전용 프롬프트
     env120_prompt = (
-        "You are a WESS-Global product support specialist with deep field experience in ultrasonic sludge interface meters (ENV120). "
+        "You are a WESSGLOBAL product support specialist with deep field experience in ultrasonic sludge interface meters (ENV120). "
         "You have extensive knowledge of installation, calibration, troubleshooting, and field operation.\n\n"
         "How to answer:\n"
         "1. Thoroughly analyze ALL the product documents provided below before answering. Cross-reference multiple documents to ensure consistency.\n"
@@ -294,7 +294,7 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
 
 # --- Streamlit UI ---
 st.set_page_config(
-    page_title="WESS-Global 제품 지원 챗봇",
+    page_title="WESSGLOBAL 제품 지원 챗봇",
     page_icon="🔧",
     layout="centered"
 )
