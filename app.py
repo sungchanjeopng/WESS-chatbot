@@ -1,11 +1,27 @@
-"""WESSGLOBAL 제품 AI 챗봇 (Streamlit)"""
+"""WESSGLOBAL 제품 AI 챗봇 (Streamlit + REST API)"""
 import os
+import threading
 import streamlit as st
 import chromadb
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Flask API를 백그라운드 스레드로 실행
+def start_api_server():
+    try:
+        from api import app as flask_app, init as api_init
+        api_init()
+        api_port = int(os.environ.get("API_PORT", 5001))
+        flask_app.run(host="0.0.0.0", port=api_port, use_reloader=False)
+    except Exception as e:
+        print(f"API server failed: {e}")
+
+if "api_started" not in st.session_state:
+    st.session_state.api_started = True
+    t = threading.Thread(target=start_api_server, daemon=True)
+    t.start()
 
 # Streamlit Cloud Secrets 지원
 if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
