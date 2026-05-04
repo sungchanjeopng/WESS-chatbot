@@ -310,22 +310,144 @@ def stream_answer(openai_client, question, context_docs, lang="한국어", chat_
 
 # --- Streamlit UI ---
 st.set_page_config(
-    page_title="제품 지원 챗봇",
-    page_icon="🔧",
+    page_title="AI Assistant",
+    page_icon="💬",
     layout="centered"
 )
 
-# 기본 CSS
+# Toss-style CSS
 st.markdown("""
 <style>
-    .block-container { max-width: 800px; padding-top: 1rem; }
-    @media (max-width: 768px) {
-        .stSelectbox > div { font-size: 14px; }
-        .stChatMessage { padding: 0.5rem; }
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+    html, body, [class*="css"], .stApp, .stMarkdown, .stSelectbox, .stButton, .stChatMessage, p, span, div, label {
+        font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+        letter-spacing: -0.01em;
     }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+
+    .stApp { background-color: #F9FAFB; }
+
+    .block-container {
+        max-width: 720px;
+        padding-top: 2.5rem;
+        padding-bottom: 8rem;
+    }
+
+    #MainMenu, footer, header { visibility: hidden; }
+
+    /* Page title */
+    .toss-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #191F28;
+        margin-bottom: 4px;
+        letter-spacing: -0.025em;
+    }
+    .toss-subtitle {
+        font-size: 14px;
+        color: #8B95A1;
+        margin-bottom: 24px;
+    }
+
+    /* Selectbox */
+    .stSelectbox label {
+        color: #4E5968 !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+    }
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #F2F4F6 !important;
+        border: 1px solid transparent !important;
+        border-radius: 12px !important;
+        min-height: 44px !important;
+        box-shadow: none !important;
+        transition: background-color 0.15s ease !important;
+    }
+    .stSelectbox div[data-baseweb="select"] > div:hover {
+        background-color: #E5E8EB !important;
+    }
+    .stSelectbox div[data-baseweb="select"] svg { color: #8B95A1 !important; }
+
+    /* Dropdown menu items */
+    div[data-baseweb="popover"] li { font-size: 14px !important; }
+
+    /* Button - Toss blue */
+    .stButton > button {
+        background-color: #3182F6 !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        height: 44px !important;
+        box-shadow: none !important;
+        transition: background-color 0.15s ease !important;
+    }
+    .stButton > button:hover { background-color: #1B64DA !important; }
+    .stButton > button:active { background-color: #1957C2 !important; }
+    .stButton > button:focus { box-shadow: none !important; outline: none !important; }
+
+    /* Caption */
+    .stCaption, [data-testid="stCaptionContainer"] {
+        color: #8B95A1 !important;
+        font-size: 14px !important;
+        margin-top: 8px !important;
+        margin-bottom: 16px !important;
+    }
+
+    /* Chat messages */
+    .stChatMessage {
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0.4rem 0 !important;
+        gap: 12px !important;
+    }
+    [data-testid="stChatMessageAvatarUser"],
+    [data-testid="stChatMessageAvatarAssistant"] {
+        background-color: #F2F4F6 !important;
+    }
+    [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] {
+        background-color: #FFFFFF;
+        border-radius: 16px;
+        padding: 14px 18px;
+        box-shadow: 0 1px 2px rgba(25,31,40,0.04);
+        line-height: 1.65;
+        font-size: 15px;
+        color: #191F28;
+    }
+
+    /* Chat input - bottom */
+    [data-testid="stChatInput"] {
+        background-color: #F9FAFB !important;
+    }
+    [data-testid="stChatInput"] textarea {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E5E8EB !important;
+        border-radius: 16px !important;
+        font-size: 15px !important;
+        padding: 14px 18px !important;
+        box-shadow: 0 1px 2px rgba(25,31,40,0.03) !important;
+    }
+    [data-testid="stChatInput"] textarea:focus {
+        border-color: #3182F6 !important;
+        box-shadow: 0 0 0 3px rgba(49,130,246,0.12) !important;
+    }
+    [data-testid="stChatInput"] button {
+        background-color: #3182F6 !important;
+        border-radius: 12px !important;
+    }
+    [data-testid="stChatInput"] button:hover { background-color: #1B64DA !important; }
+    [data-testid="stChatInput"] button svg { color: #FFFFFF !important; fill: #FFFFFF !important; }
+
+    /* Spinner */
+    .stSpinner > div { border-top-color: #3182F6 !important; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .block-container { padding-top: 1.5rem; padding-left: 1rem; padding-right: 1rem; }
+        .toss-title { font-size: 22px; }
+        .stSelectbox label { font-size: 12px !important; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -336,16 +458,23 @@ MODELS = {
     "WESS AI 1.0": "gpt-5.4",
 }
 
+# Header
+st.markdown(
+    '<div class="toss-title">AI Assistant</div>'
+    '<div class="toss-subtitle">Ask anything about our products.</div>',
+    unsafe_allow_html=True,
+)
+
 # 제품 / 언어 / 모델 / 새 대화 버튼
 col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
 with col1:
-    product = st.selectbox("Product / 제품", list(PRODUCTS.keys()), index=0)
+    product = st.selectbox("Product", list(PRODUCTS.keys()), index=0)
 with col2:
-    lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=0)
+    lang = st.selectbox("Language", list(LANGUAGES.keys()), index=0)
 with col3:
     model_name = st.selectbox("Model", list(MODELS.keys()), index=1)
 with col4:
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='height:26px'></div>", unsafe_allow_html=True)
     if st.button(LANGUAGES[lang]["new_chat"], use_container_width=True):
         st.session_state.messages = [
             {"role": "assistant", "content": LANGUAGES[lang]["greeting"]}
