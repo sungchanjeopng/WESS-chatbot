@@ -30,21 +30,12 @@ if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
 CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 
 PRODUCTS = {
-    "농도계 (ENV200)": "wess_density",
-    "계면계 (ENV130)": "wess_interface",
-    "계면계 (ENV120)": "wess_interface_120",
+    "ENV200": "wess_density",
+    "ENV130": "wess_interface",
+    "ENV120": "wess_interface_120",
 }
 
 LANGUAGES = {
-    "한국어": {
-        "greeting": "안녕하세요! 제품에 대해 궁금한 점을 물어보세요.",
-        "caption": "ENV200 초음파 슬러지 농도계에 대해 궁금한 점을 물어보세요.",
-        "placeholder": "질문을 입력하세요...",
-        "spinner": "답변을 생성하고 있습니다...",
-        "new_chat": "새 대화",
-        "lang_rule": "반드시 한국어로만 답변하세요. 영어 문서를 참조하더라도 한국어로 번역하여 답변하세요. 제품명, 모델명 등 고유명사만 영어 그대로 사용하세요.",
-        "unknown": "해당 정보는 확인되지 않습니다. 추가 문의는 고객지원(041-584-8820)으로 연락해주세요.",
-    },
     "English": {
         "greeting": "Hello! Ask me anything about our products.",
         "caption": "Ask any questions about the ENV200 Ultrasonic Sludge Density Meter.",
@@ -53,6 +44,15 @@ LANGUAGES = {
         "new_chat": "New Chat",
         "lang_rule": "You must answer only in English. Even if the document is in Korean, translate and answer in English. Keep product names and model names as-is.",
         "unknown": "The requested information could not be found. Please contact customer support at 041-584-8820.",
+    },
+    "한국어": {
+        "greeting": "안녕하세요! 제품에 대해 궁금한 점을 물어보세요.",
+        "caption": "ENV200 초음파 슬러지 농도계에 대해 궁금한 점을 물어보세요.",
+        "placeholder": "질문을 입력하세요...",
+        "spinner": "답변을 생성하고 있습니다...",
+        "new_chat": "새 대화",
+        "lang_rule": "반드시 한국어로만 답변하세요. 영어 문서를 참조하더라도 한국어로 번역하여 답변하세요. 제품명, 모델명 등 고유명사만 영어 그대로 사용하세요.",
+        "unknown": "해당 정보는 확인되지 않습니다. 추가 문의는 고객지원(041-584-8820)으로 연락해주세요.",
     },
     "日本語": {
         "greeting": "こんにちは！製品についてお気軽にご質問ください。",
