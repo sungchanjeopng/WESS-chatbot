@@ -1,4 +1,4 @@
-"""WESSGLOBAL 챗봇 REST API (Flask) — 안드로이드 앱용"""
+"""챗봇 REST API (Flask) — 안드로이드 앱용"""
 import os
 import json
 from flask import Flask, request, jsonify, Response, stream_with_context
@@ -56,24 +56,24 @@ def build_system_prompt(product, context, lang="ko"):
         "- Never reference table/figure/chapter numbers.\n"
         "- Explain the content directly.\n"
         "- 반드시 한국어로 답변하세요.\n"
-        "- If truly no relevant information exists, say: '해당 정보는 확인되지 않습니다. 추가 문의는 WESSGLOBAL 고객지원(041-584-8820)으로 연락해주세요.'\n"
+        "- If truly no relevant information exists, say: '해당 정보는 확인되지 않습니다. 추가 문의는 고객지원(041-584-8820)으로 연락해주세요.'\n"
     )
 
     if product == "density":
         return (
-            "You are a WESSGLOBAL product support specialist for ultrasonic sludge density meter (ENV200).\n\n"
+            "You are a product support specialist for ultrasonic sludge density meter (ENV200).\n\n"
             + common_rules
             + f"\n[Product Documents]\n{context}"
         )
     elif product == "interface":
         return (
-            "You are a WESSGLOBAL product support specialist for ultrasonic sludge interface meter (ENV130).\n\n"
+            "You are a product support specialist for ultrasonic sludge interface meter (ENV130).\n\n"
             + common_rules
             + f"\n[Product Documents]\n{context}"
         )
     else:
         return (
-            "You are a WESSGLOBAL product support specialist.\n\n"
+            "You are a product support specialist.\n\n"
             + common_rules
             + f"\n[Product Documents]\n{context}"
         )
