@@ -331,9 +331,8 @@ st.markdown("""
 
 
 MODELS = {
-    "WESS AI 1.0 nano": "gpt-5.4-nano",
-    "WESS AI 1.0 mini": "gpt-5.4-mini",
-    "WESS AI 1.0": "gpt-5.4",
+    "WESS AI 1.0": "gpt-5.4-nano",
+    "WESS AI 1.1": "gpt-5.4-mini",
 }
 
 # 제품 / 언어 / 모델 / 새 대화 버튼
