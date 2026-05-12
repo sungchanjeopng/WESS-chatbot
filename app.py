@@ -43,7 +43,6 @@ def _apply_streamlit_cloud_secrets() -> None:
 _apply_streamlit_cloud_secrets()
 
 from wessbot.config import LANGUAGES, MODEL_OPTIONS, normalize_language
-from wessbot.products import PRODUCTS
 from wessbot.rag import WessRagEngine, RetrievalResult
 
 
@@ -96,6 +95,217 @@ def render_sources(retrieval: RetrievalResult) -> None:
             )
 
 
+SAMPLE_QUESTIONS_BY_PRODUCT = {
+    "ENV200": {
+        "한국어": (
+            "ENV200에서 EEA 교정은 어떻게 하나요?",
+            "농도계 4-20mA 출력 설정 방법 알려줘",
+            "측정값이 흔들릴 때 확인할 항목은?",
+        ),
+        "English": (
+            "How do I perform EEA calibration on ENV200?",
+            "How do I set the density meter 4-20 mA output?",
+            "What should I check when the measured value is unstable?",
+        ),
+        "日本語": (
+            "ENV200でEEA校正はどのように行いますか？",
+            "濃度計の4-20mA出力設定方法を教えてください。",
+            "測定値が揺れるときに確認する項目は？",
+        ),
+        "中文": (
+            "ENV200 如何进行 EEA 校准？",
+            "浓度计 4-20mA 输出如何设置？",
+            "测量值波动时应检查哪些项目？",
+        ),
+        "Español": (
+            "¿Cómo realizo la calibración EEA en ENV200?",
+            "¿Cómo configuro la salida 4-20 mA del medidor de densidad?",
+            "¿Qué debo revisar cuando el valor medido es inestable?",
+        ),
+        "Français": (
+            "Comment effectuer l'étalonnage EEA sur ENV200 ?",
+            "Comment régler la sortie 4-20 mA du densimètre ?",
+            "Que vérifier lorsque la valeur mesurée est instable ?",
+        ),
+        "Deutsch": (
+            "Wie führe ich die EEA-Kalibrierung beim ENV200 durch?",
+            "Wie stelle ich den 4-20-mA-Ausgang des Dichtemessers ein?",
+            "Was soll ich prüfen, wenn der Messwert schwankt?",
+        ),
+        "Português": (
+            "Como faço a calibração EEA no ENV200?",
+            "Como configuro a saída 4-20 mA do medidor de densidade?",
+            "O que devo verificar quando o valor medido está instável?",
+        ),
+        "Tiếng Việt": (
+            "Làm thế nào để hiệu chuẩn EEA trên ENV200?",
+            "Cách cài đặt ngõ ra 4-20 mA của máy đo nồng độ?",
+            "Cần kiểm tra gì khi giá trị đo dao động?",
+        ),
+        "ภาษาไทย": (
+            "จะทำการสอบเทียบ EEA บน ENV200 ได้อย่างไร?",
+            "จะตั้งค่าเอาต์พุต 4-20 mA ของเครื่องวัดความหนาแน่นได้อย่างไร?",
+            "ควรตรวจสอบอะไรเมื่อค่าที่วัดไม่นิ่ง?",
+        ),
+        "Bahasa Indonesia": (
+            "Bagaimana cara melakukan kalibrasi EEA pada ENV200?",
+            "Bagaimana mengatur output 4-20 mA pada density meter?",
+            "Apa yang harus diperiksa saat nilai pengukuran tidak stabil?",
+        ),
+        "العربية": (
+            "كيف أقوم بمعايرة EEA على ENV200؟",
+            "كيف أضبط خرج 4-20mA لمقياس الكثافة؟",
+            "ما الذي يجب فحصه عند تذبذب قيمة القياس؟",
+        ),
+        "Русский": (
+            "Как выполнить калибровку EEA на ENV200?",
+            "Как настроить выход 4-20 мА измерителя плотности?",
+            "Что проверить, если измеренное значение нестабильно?",
+        ),
+    },
+    "ENV130": {
+        "한국어": (
+            "ENV130 Threshold 설정 방법 알려줘",
+            "CH1 CH2 계면 측정이 이상할 때 확인할 것",
+            "R1 릴레이 동작 조건 설명해줘",
+        ),
+        "English": (
+            "How do I set the Threshold on ENV130?",
+            "What should I check when CH1/CH2 interface measurement is abnormal?",
+            "Explain the R1 relay operating conditions.",
+        ),
+        "日本語": (
+            "ENV130のThreshold設定方法を教えてください。",
+            "CH1/CH2の界面測定が異常なときに確認することは？",
+            "R1リレーの動作条件を説明してください。",
+        ),
+        "中文": (
+            "ENV130 的 Threshold 如何设置？",
+            "CH1/CH2 界面测量异常时应检查什么？",
+            "请说明 R1 继电器动作条件。",
+        ),
+        "Español": (
+            "¿Cómo configuro el Threshold en ENV130?",
+            "¿Qué debo revisar cuando la medición de interfaz CH1/CH2 es anormal?",
+            "Explique las condiciones de operación del relé R1.",
+        ),
+        "Français": (
+            "Comment régler le Threshold sur ENV130 ?",
+            "Que vérifier lorsque la mesure d'interface CH1/CH2 est anormale ?",
+            "Expliquez les conditions de fonctionnement du relais R1.",
+        ),
+        "Deutsch": (
+            "Wie stelle ich den Threshold beim ENV130 ein?",
+            "Was soll ich prüfen, wenn die CH1/CH2-Grenzschichtmessung abnormal ist?",
+            "Erkläre die Betriebsbedingungen des R1-Relais.",
+        ),
+        "Português": (
+            "Como configuro o Threshold no ENV130?",
+            "O que verificar quando a medição de interface CH1/CH2 está anormal?",
+            "Explique as condições de operação do relé R1.",
+        ),
+        "Tiếng Việt": (
+            "Cách cài đặt Threshold trên ENV130?",
+            "Cần kiểm tra gì khi đo giao diện CH1/CH2 bất thường?",
+            "Giải thích điều kiện hoạt động của rơ-le R1.",
+        ),
+        "ภาษาไทย": (
+            "จะตั้งค่า Threshold บน ENV130 ได้อย่างไร?",
+            "ควรตรวจสอบอะไรเมื่อการวัดชั้นตะกอน CH1/CH2 ผิดปกติ?",
+            "อธิบายเงื่อนไขการทำงานของรีเลย์ R1",
+        ),
+        "Bahasa Indonesia": (
+            "Bagaimana cara mengatur Threshold pada ENV130?",
+            "Apa yang harus diperiksa saat pengukuran interface CH1/CH2 tidak normal?",
+            "Jelaskan kondisi kerja relay R1.",
+        ),
+        "العربية": (
+            "كيف أضبط Threshold على ENV130؟",
+            "ما الذي يجب فحصه عند وجود خلل في قياس الواجهة CH1/CH2؟",
+            "اشرح شروط تشغيل مرحل R1.",
+        ),
+        "Русский": (
+            "Как настроить Threshold на ENV130?",
+            "Что проверить при ненормальном измерении границы CH1/CH2?",
+            "Объясните условия срабатывания реле R1.",
+        ),
+    },
+    "ENV120": {
+        "한국어": (
+            "ENV120에서 수신감도는 언제 조정하나요?",
+            "측정값이 갑자기 튈 때 점검 순서 알려줘",
+            "ENV120 릴레이 설정 방법 알려줘",
+        ),
+        "English": (
+            "When should I adjust Echo AMP on ENV120?",
+            "What is the check sequence when the measured value suddenly jumps?",
+            "How do I set the ENV120 relay?",
+        ),
+        "日本語": (
+            "ENV120で受信感度はいつ調整しますか？",
+            "測定値が急に跳ねるときの点検手順を教えてください。",
+            "ENV120のリレー設定方法を教えてください。",
+        ),
+        "中文": (
+            "ENV120 什么时候需要调整接收灵敏度？",
+            "测量值突然跳动时的检查顺序是什么？",
+            "ENV120 继电器如何设置？",
+        ),
+        "Español": (
+            "¿Cuándo debo ajustar Echo AMP en ENV120?",
+            "¿Cuál es la secuencia de revisión cuando el valor medido salta repentinamente?",
+            "¿Cómo configuro el relé del ENV120?",
+        ),
+        "Français": (
+            "Quand faut-il ajuster Echo AMP sur ENV120 ?",
+            "Quelle est la séquence de vérification lorsque la valeur mesurée saute soudainement ?",
+            "Comment régler le relais de l'ENV120 ?",
+        ),
+        "Deutsch": (
+            "Wann sollte ich Echo AMP beim ENV120 einstellen?",
+            "Welche Prüfschritte gelten, wenn der Messwert plötzlich springt?",
+            "Wie stelle ich das ENV120-Relais ein?",
+        ),
+        "Português": (
+            "Quando devo ajustar o Echo AMP no ENV120?",
+            "Qual é a sequência de verificação quando o valor medido salta de repente?",
+            "Como configuro o relé do ENV120?",
+        ),
+        "Tiếng Việt": (
+            "Khi nào cần chỉnh Echo AMP trên ENV120?",
+            "Trình tự kiểm tra khi giá trị đo đột ngột nhảy là gì?",
+            "Cách cài đặt rơ-le ENV120?",
+        ),
+        "ภาษาไทย": (
+            "ควรปรับ Echo AMP บน ENV120 เมื่อใด?",
+            "ลำดับการตรวจสอบเมื่อค่าที่วัดกระโดดกะทันหันคืออะไร?",
+            "จะตั้งค่ารีเลย์ ENV120 ได้อย่างไร?",
+        ),
+        "Bahasa Indonesia": (
+            "Kapan Echo AMP pada ENV120 perlu disesuaikan?",
+            "Bagaimana urutan pengecekan saat nilai pengukuran tiba-tiba melonjak?",
+            "Bagaimana cara mengatur relay ENV120?",
+        ),
+        "العربية": (
+            "متى يجب ضبط Echo AMP على ENV120؟",
+            "ما تسلسل الفحص عند قفز قيمة القياس فجأة؟",
+            "كيف أضبط مرحل ENV120؟",
+        ),
+        "Русский": (
+            "Когда нужно регулировать Echo AMP на ENV120?",
+            "Какова последовательность проверки, если значение измерения внезапно скачет?",
+            "Как настроить реле ENV120?",
+        ),
+    },
+}
+
+
+def get_sample_questions(product: str, language: str) -> tuple[str, str, str]:
+    product_questions = SAMPLE_QUESTIONS_BY_PRODUCT.get(product, SAMPLE_QUESTIONS_BY_PRODUCT["ENV200"])
+    lang = normalize_language(language)
+    return product_questions.get(lang, product_questions["한국어"])
+
+
 start_api_server_if_enabled()
 
 st.set_page_config(page_title="WESS 제품 지원 챗봇", page_icon="🔧", layout="centered")
@@ -114,53 +324,29 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("WESS 제품 지원 챗봇")
-st.caption("ENV120 · ENV130 · ENV200 문서 기반 답변 / 설치·설정·교정·오류 대응")
-
 try:
     engine = get_engine()
 except Exception as exc:
     st.error(f"초기화 실패: {exc}")
     st.stop()
 
-health = engine.health()
-product_options = {"auto": "자동 선택"} | {k: v.display_name for k, v in PRODUCTS.items()}
+product_options = ["ENV200", "ENV130", "ENV120"]
 
-col1, col2, col3, col4 = st.columns([2.3, 2, 1.8, 1.2])
+col1, col2, col3 = st.columns([2.3, 2, 1.2])
 with col1:
-    product = st.selectbox(
-        "Product / 제품",
-        list(product_options.keys()),
-        format_func=lambda k: product_options[k],
-        index=0,
-    )
+    product = st.selectbox("Product / 제품", product_options, index=0)
 with col2:
     lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=list(LANGUAGES.keys()).index("한국어"))
 with col3:
-    model_label = st.selectbox("Answer mode", list(MODEL_OPTIONS.keys()), index=1)
-with col4:
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button(LANGUAGES[lang]["new_chat"], use_container_width=True):
         st.session_state.messages = [{"role": "assistant", "content": LANGUAGES[lang]["greeting"]}]
         st.session_state.last_sources = None
         st.rerun()
 
-ready_products = [k for k, v in health["products"].items() if v.get("ready")]
-if not ready_products:
-    st.warning("제품 문서 DB가 준비되지 않았습니다. chroma_db를 확인하거나 load_docs.py를 실행하세요.")
-    st.stop()
-
-with st.expander("제품별 문서 상태", expanded=False):
-    for key, item in health["products"].items():
-        status = "준비됨" if item["ready"] else "없음"
-        st.write(f"- {key}: {status}, chunks={item.get('count')}")
-    st.markdown(
-        "<div class='small-note'>공개 GitHub에 chroma_db를 올릴 경우 문서 원문 조각이 노출될 수 있습니다.</div>",
-        unsafe_allow_html=True,
-    )
-
 lang = normalize_language(lang)
 lang_cfg = LANGUAGES[lang]
+model_name = MODEL_OPTIONS["정밀 답변"]
 
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": lang_cfg["greeting"]}]
@@ -169,11 +355,7 @@ if "last_sources" not in st.session_state:
 
 # 추천 질문
 sample_cols = st.columns(3)
-sample_questions = [
-    "ENV130 Threshold 설정 방법 알려줘",
-    "ENV200 4-20mA 출력 설정은 어떻게 하나요?",
-    "ENV120 측정값이 튈 때 점검 순서 알려줘",
-]
+sample_questions = get_sample_questions(product, lang)
 for i, q in enumerate(sample_questions):
     if sample_cols[i].button(q, use_container_width=True):
         st.session_state.queued_prompt = q
@@ -200,7 +382,7 @@ if prompt:
                     product=product,
                     language=lang,
                     history=st.session_state.messages,
-                    model=MODEL_OPTIONS[model_label],
+                    model=model_name,
                 )
             answer = st.write_stream(stream_text(stream))
             render_sources(retrieval)
