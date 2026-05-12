@@ -5,18 +5,46 @@ import os
 import threading
 from typing import Iterable
 
-import streamlit as st
 from dotenv import load_dotenv
+import streamlit as st
+
+load_dotenv()
+
+
+def _apply_streamlit_cloud_secrets() -> None:
+    """Expose Streamlit Community Cloud secrets as env vars before config import."""
+    secret_keys = (
+        "OPENAI_API_KEY",
+        "WESS_CHAT_MODEL",
+        "WESS_FAST_MODEL",
+        "WESS_EMBEDDING_MODEL",
+        "WESS_RAG_N_RESULTS",
+        "WESS_MAX_HISTORY_MESSAGES",
+        "WESS_MAX_CONTEXT_CHARS",
+        "CHROMA_DIR",
+        "WESS_API_KEY",
+        "CORS_ALLOW_ORIGIN",
+        "START_EMBEDDED_API",
+    )
+    try:
+        secrets = st.secrets
+    except Exception:
+        return
+
+    for key in secret_keys:
+        try:
+            value = secrets.get(key)
+        except Exception:
+            continue
+        if value is not None and str(value).strip():
+            os.environ[key] = str(value)
+
+
+_apply_streamlit_cloud_secrets()
 
 from wessbot.config import LANGUAGES, MODEL_OPTIONS, normalize_language
 from wessbot.products import PRODUCTS
 from wessbot.rag import WessRagEngine, RetrievalResult
-
-load_dotenv()
-
-# Streamlit Cloud Secrets 지원: secrets 값은 화면에 출력하지 않는다.
-if hasattr(st, "secrets") and "OPENAI_API_KEY" in st.secrets:
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 
 def start_api_server_if_enabled() -> None:

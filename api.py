@@ -8,11 +8,11 @@ from typing import Any
 from dotenv import load_dotenv
 from flask import Flask, Response, jsonify, request, stream_with_context
 
+load_dotenv()
+
 from wessbot.config import DEFAULT_CHAT_MODEL, normalize_language
 from wessbot.products import PRODUCTS, normalize_product
 from wessbot.rag import WessRagEngine
-
-load_dotenv()
 
 app = Flask(__name__)
 engine: WessRagEngine | None = None

@@ -32,6 +32,29 @@ python api.py
 API_PORT=5000 python api.py
 ```
 
+## Streamlit Community Cloud 배포
+
+1. GitHub repo: `sungchanjeopng/WESS-chatbot`
+2. Branch: `main`
+3. Main file path: `app.py`
+4. App secrets에 최소 아래 값을 등록
+
+```toml
+OPENAI_API_KEY="sk-..."
+```
+
+선택 secrets:
+
+```toml
+WESS_CHAT_MODEL="gpt-5.4-mini"
+WESS_FAST_MODEL="gpt-5.4-nano"
+WESS_EMBEDDING_MODEL="text-embedding-3-small"
+CHROMA_DIR="./chroma_db"
+```
+
+바로가기 예시:
+`https://share.streamlit.io/deploy?repository=https://github.com/sungchanjeopng/WESS-chatbot&branch=main&mainModule=app.py`
+
 ## API
 
 ### 상태 확인
