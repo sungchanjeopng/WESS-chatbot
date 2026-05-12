@@ -1,2 +1,16 @@
 .env
+.env.*
+!.env.example
 __pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.log
+ingest_report.json
+# Public repo caution: ChromaDB may contain readable product-document chunks.
+# Existing tracked chroma_db files remain tracked until explicitly removed.
+chroma_db/**/*.tmp
+chroma_db/**/*.wal

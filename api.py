@@ -1,182 +1,245 @@
-"""챗봇 REST API (Flask) — 안드로이드 앱용"""
-import os
+"""WESS chatbot REST API for mobile apps and external clients."""
+from __future__ import annotations
+
 import json
-from flask import Flask, request, jsonify, Response, stream_with_context
-import chromadb
-from openai import OpenAI
+import os
+from typing import Any
+
 from dotenv import load_dotenv
+from flask import Flask, Response, jsonify, request, stream_with_context
+
+from wessbot.config import DEFAULT_CHAT_MODEL, normalize_language
+from wessbot.products import PRODUCTS, normalize_product
+from wessbot.rag import WessRagEngine
 
 load_dotenv()
 
 app = Flask(__name__)
-
-CHROMA_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
-
-PRODUCTS = {
-    "density": "wess_density",
-    "interface": "wess_interface",
-    "interface_120": "wess_interface_120",
-}
-
-# 클라이언트 초기화 (앱 시작 시 1회)
-openai_client = None
-collections = {}
-
-def init():
-    global openai_client, collections
-    openai_client = OpenAI()
-    chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
-    for key, col_name in PRODUCTS.items():
-        try:
-            collections[key] = chroma_client.get_collection(col_name)
-        except Exception:
-            collections[key] = None
-
-def search_docs(collection, query, n_results=15):
-    query_embedding = openai_client.embeddings.create(
-        model="text-embedding-3-small",
-        input=query
-    ).data[0].embedding
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=n_results
-    )
-    return results["documents"][0]
-
-def build_system_prompt(product, context, lang="ko"):
-    common_rules = (
-        "How to answer:\n"
-        "1. Cross-reference multiple documents to ensure consistency before answering.\n"
-        "2. Even if the exact answer is not directly stated, infer and reason based on related information.\n"
-        "3. Provide step-by-step procedures that can be followed immediately.\n"
-        "4. Think deeply before answering.\n"
-        "5. If the answer is ambiguous, say so.\n"
-        "6. If documents contain conflicting information, note that 'versions may differ'.\n\n"
-        "Rules:\n"
-        "- Never reference table/figure/chapter numbers.\n"
-        "- Explain the content directly.\n"
-        "- 반드시 한국어로 답변하세요.\n"
-        "- If truly no relevant information exists, say: '해당 정보는 확인되지 않습니다. 추가 문의는 고객지원(041-584-8820)으로 연락해주세요.'\n"
-    )
-
-    if product == "density":
-        return (
-            "You are a product support specialist for ultrasonic sludge density meter (ENV200).\n\n"
-            + common_rules
-            + f"\n[Product Documents]\n{context}"
-        )
-    elif product == "interface":
-        return (
-            "You are a product support specialist for ultrasonic sludge interface meter (ENV130).\n\n"
-            + common_rules
-            + f"\n[Product Documents]\n{context}"
-        )
-    else:
-        return (
-            "You are a product support specialist.\n\n"
-            + common_rules
-            + f"\n[Product Documents]\n{context}"
-        )
+engine: WessRagEngine | None = None
 
 
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    """채팅 API — JSON 요청/응답"""
-    data = request.get_json()
-    if not data:
+def init() -> WessRagEngine:
+    """Initialize shared RAG engine once."""
+    global engine
+    if engine is None:
+        engine = WessRagEngine()
+    return engine
+
+
+@app.after_request
+def add_cors_headers(response):
+    """Small no-dependency CORS support for mobile/web clients.
+
+    Limit allowed origins in production by setting CORS_ALLOW_ORIGIN.
+    """
+    origin = os.getenv("CORS_ALLOW_ORIGIN", "*")
+    response.headers["Access-Control-Allow-Origin"] = origin
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
+
+def _check_api_key() -> tuple[bool, Any]:
+    expected = os.getenv("WESS_API_KEY")
+    if not expected:
+        return True, None
+    supplied = request.headers.get("X-API-Key") or request.headers.get("Authorization", "").replace("Bearer ", "")
+    if supplied == expected:
+        return True, None
+    return False, jsonify({"error": "Unauthorized"})
+
+
+def _json_body() -> dict[str, Any] | tuple[Any, int]:
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
         return jsonify({"error": "No JSON body"}), 400
-
-    question = data.get("question", "").strip()
-    product = data.get("product", "density")  # density, interface, interface_120
-    history = data.get("history", [])  # [{"role":"user","content":"..."}, ...]
-    model = data.get("model", "gpt-4.1-mini")
-
-    if not question:
-        return jsonify({"error": "Empty question"}), 400
-
-    collection = collections.get(product)
-    if collection is None:
-        return jsonify({"error": "Product not found"}), 404
-
-    # 벡터 검색
-    context_docs = search_docs(collection, question)
-    context = "\n\n---\n\n".join(context_docs)
-
-    # 시스템 프롬프트
-    sys_prompt = build_system_prompt(product, context)
-
-    messages = [{"role": "system", "content": sys_prompt}]
-    for msg in history[-20:]:
-        if msg.get("role") in ("user", "assistant"):
-            messages.append({"role": msg["role"], "content": msg["content"]})
-    messages.append({"role": "user", "content": question})
-
-    # OpenAI 호출 (비스트리밍)
-    response = openai_client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=0.3,
-    )
-
-    answer = response.choices[0].message.content
-    return jsonify({"answer": answer})
+    return data
 
 
-@app.route("/api/chat/stream", methods=["POST"])
-def chat_stream():
-    """스트리밍 채팅 API — SSE 응답"""
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No JSON body"}), 400
-
-    question = data.get("question", "").strip()
-    product = data.get("product", "density")
-    history = data.get("history", [])
-    model = data.get("model", "gpt-4.1-mini")
-
-    if not question:
-        return jsonify({"error": "Empty question"}), 400
-
-    collection = collections.get(product)
-    if collection is None:
-        return jsonify({"error": "Product not found"}), 404
-
-    context_docs = search_docs(collection, question)
-    context = "\n\n---\n\n".join(context_docs)
-    sys_prompt = build_system_prompt(product, context)
-
-    messages = [{"role": "system", "content": sys_prompt}]
-    for msg in history[-20:]:
-        if msg.get("role") in ("user", "assistant"):
-            messages.append({"role": msg["role"], "content": msg["content"]})
-    messages.append({"role": "user", "content": question})
-
-    def generate():
-        stream = openai_client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=0.3,
-            stream=True,
-        )
-        for chunk in stream:
-            delta = chunk.choices[0].delta
-            if delta.content:
-                yield f"data: {json.dumps({'text': delta.content})}\n\n"
-        yield "data: [DONE]\n\n"
-
-    return Response(
-        stream_with_context(generate()),
-        mimetype="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
-    )
+def _safe_history(value: Any) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    out: list[dict[str, str]] = []
+    for msg in value[-20:]:
+        if not isinstance(msg, dict):
+            continue
+        role = msg.get("role")
+        content = msg.get("content")
+        if role in {"user", "assistant"} and isinstance(content, str) and content.strip():
+            out.append({"role": role, "content": content.strip()})
+    return out
 
 
 @app.route("/api/health", methods=["GET"])
 def health():
-    return jsonify({"status": "ok"})
+    try:
+        e = init()
+        return jsonify(e.health())
+    except Exception as exc:
+        return jsonify({"status": "error", "error": str(exc)}), 500
+
+
+@app.route("/api/products", methods=["GET"])
+def products():
+    e = init()
+    health_data = e.health()["products"]
+    return jsonify(
+        {
+            "products": [
+                {
+                    "key": spec.key,
+                    "api_key": spec.api_key,
+                    "display_name": spec.display_name,
+                    "collection": spec.collection,
+                    "ready": health_data.get(key, {}).get("ready", False),
+                    "count": health_data.get(key, {}).get("count"),
+                    "sample_questions": list(spec.sample_questions),
+                }
+                for key, spec in PRODUCTS.items()
+            ],
+            "aliases": {"density": "ENV200", "interface": "ENV130", "interface_120": "ENV120", "auto": "auto"},
+        }
+    )
+
+
+@app.route("/api/chat", methods=["OPTIONS"])
+@app.route("/api/chat/stream", methods=["OPTIONS"])
+def options():
+    return ("", 204)
+
+
+@app.route("/api/chat", methods=["POST"])
+def chat():
+    ok, error = _check_api_key()
+    if not ok:
+        return error, 401
+    data = _json_body()
+    if isinstance(data, tuple):
+        return data
+
+    question = str(data.get("question", "")).strip()
+    if not question:
+        return jsonify({"error": "Empty question"}), 400
+
+    product = normalize_product(data.get("product", "auto"), default="auto")
+    language = normalize_language(data.get("language") or data.get("lang") or "ko")
+    history = _safe_history(data.get("history", []))
+    model = str(data.get("model") or DEFAULT_CHAT_MODEL)
+
+    try:
+        e = init()
+        answer, retrieval = e.answer_once(
+            question,
+            product=product,
+            language=language,
+            history=history,
+            model=model,
+        )
+        return jsonify(
+            {
+                "answer": answer,
+                "product": retrieval.product,
+                "selected_product": retrieval.selected_product,
+                "detected_product": retrieval.detected_product,
+                "product_conflict": retrieval.product_conflict,
+                "low_evidence": retrieval.low_evidence,
+                "sources": retrieval.public_sources(),
+            }
+        )
+    except Exception as exc:
+        return jsonify({"error": "Answer generation failed", "detail": str(exc)}), 500
+
+
+@app.route("/api/chat/stream", methods=["POST"])
+def chat_stream():
+    ok, error = _check_api_key()
+    if not ok:
+        return error, 401
+    data = _json_body()
+    if isinstance(data, tuple):
+        return data
+
+    question = str(data.get("question", "")).strip()
+    if not question:
+        return jsonify({"error": "Empty question"}), 400
+
+    product = normalize_product(data.get("product", "auto"), default="auto")
+    language = normalize_language(data.get("language") or data.get("lang") or "ko")
+    history = _safe_history(data.get("history", []))
+    model = str(data.get("model") or DEFAULT_CHAT_MODEL)
+
+    try:
+        e = init()
+        stream, retrieval = e.answer_stream(
+            question,
+            product=product,
+            language=language,
+            history=history,
+            model=model,
+        )
+    except Exception as exc:
+        return jsonify({"error": "Stream initialization failed", "detail": str(exc)}), 500
+
+    def generate():
+        meta = {
+            "type": "meta",
+            "product": retrieval.product,
+            "selected_product": retrieval.selected_product,
+            "detected_product": retrieval.detected_product,
+            "product_conflict": retrieval.product_conflict,
+            "low_evidence": retrieval.low_evidence,
+            "sources": retrieval.public_sources(),
+        }
+        yield f"data: {json.dumps(meta, ensure_ascii=False)}\n\n"
+        try:
+            for chunk in stream:
+                delta = chunk.choices[0].delta
+                text = getattr(delta, "content", None)
+                if text:
+                    yield f"data: {json.dumps({'type': 'text', 'text': text}, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as exc:
+            yield f"data: {json.dumps({'type': 'error', 'error': str(exc)}, ensure_ascii=False)}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@app.route("/api/retrieve", methods=["POST"])
+def retrieve_debug():
+    """Internal retrieval debug endpoint. Protect with WESS_API_KEY in production."""
+    ok, error = _check_api_key()
+    if not ok:
+        return error, 401
+    data = _json_body()
+    if isinstance(data, tuple):
+        return data
+    question = str(data.get("question", "")).strip()
+    if not question:
+        return jsonify({"error": "Empty question"}), 400
+    product = normalize_product(data.get("product", "auto"), default="auto")
+    try:
+        e = init()
+        retrieval = e.retrieve(question, product=product)
+        return jsonify(
+            {
+                "product": retrieval.product,
+                "selected_product": retrieval.selected_product,
+                "detected_product": retrieval.detected_product,
+                "product_conflict": retrieval.product_conflict,
+                "low_evidence": retrieval.low_evidence,
+                "score_by_product": retrieval.score_by_product,
+                "sources": retrieval.public_sources(limit=12),
+            }
+        )
+    except Exception as exc:
+        return jsonify({"error": "Retrieval failed", "detail": str(exc)}), 500
 
 
 if __name__ == "__main__":
     init()
-    port = int(os.environ.get("API_PORT", 5000))
+    port = int(os.environ.get("API_PORT", "5000"))
     app.run(host="0.0.0.0", port=port)

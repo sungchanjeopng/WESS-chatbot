@@ -1,0 +1,12 @@
+[
+  {"question": "ENV130 Threshold 설정 방법 알려줘", "expected_product": "ENV130", "category": "parameter"},
+  {"question": "ENV200 EEA 교정은 어떻게 하나요?", "expected_product": "ENV200", "category": "calibration"},
+  {"question": "ENV120 측정값이 계속 튈 때 점검 순서 알려줘", "expected_product": "ENV120", "category": "troubleshooting"},
+  {"question": "농도계 4-20mA 출력 설정 방법", "expected_product": "ENV200", "category": "output"},
+  {"question": "CH1 CH2 계면 측정이 이상해", "expected_product": "ENV130", "category": "troubleshooting"},
+  {"question": "수신감도 Echo AMP는 언제 조정해?", "expected_product": "ENV130", "category": "parameter"},
+  {"question": "ENV120 릴레이 설정 설명해줘", "expected_product": "ENV120", "category": "relay"},
+  {"question": "AGC와 Profile 기능 설명해줘", "expected_product": "ENV200", "category": "feature"},
+  {"question": "문턱전압과 ASF 차이가 뭐야?", "expected_product": "ENV130", "category": "concept"},
+  {"question": "센서 세정장치 관련 점검 방법", "expected_product": "ENV120", "category": "maintenance"}
+]
