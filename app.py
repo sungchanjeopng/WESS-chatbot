@@ -38,7 +38,6 @@ PRODUCTS = {
 LANGUAGES = {
     "English": {
         "greeting": "Hello! Ask me anything about our products.",
-        "caption": "Ask any questions about the ENV200 Ultrasonic Sludge Density Meter.",
         "placeholder": "Type your question...",
         "spinner": "Generating answer...",
         "new_chat": "New Chat",
@@ -47,7 +46,6 @@ LANGUAGES = {
     },
     "한국어": {
         "greeting": "안녕하세요! 제품에 대해 궁금한 점을 물어보세요.",
-        "caption": "ENV200 초음파 슬러지 농도계에 대해 궁금한 점을 물어보세요.",
         "placeholder": "질문을 입력하세요...",
         "spinner": "답변을 생성하고 있습니다...",
         "new_chat": "새 대화",
@@ -56,7 +54,6 @@ LANGUAGES = {
     },
     "日本語": {
         "greeting": "こんにちは！製品についてお気軽にご質問ください。",
-        "caption": "ENV200超音波スラッジ濃度計についてご質問ください。",
         "placeholder": "質問を入力してください...",
         "spinner": "回答を生成しています...",
         "new_chat": "新しい会話",
@@ -65,7 +62,6 @@ LANGUAGES = {
     },
     "中文": {
         "greeting": "您好！欢迎咨询产品相关问题。",
-        "caption": "关于ENV200超声波污泥浓度计，请随时提问。",
         "placeholder": "请输入您的问题...",
         "spinner": "正在生成回答...",
         "new_chat": "新对话",
@@ -74,7 +70,6 @@ LANGUAGES = {
     },
     "Español": {
         "greeting": "¡Hola! Pregúnteme sobre nuestros productos.",
-        "caption": "Haga preguntas sobre el medidor de densidad de lodos ultrasónico ENV200.",
         "placeholder": "Escriba su pregunta...",
         "spinner": "Generando respuesta...",
         "new_chat": "Nueva conversación",
@@ -83,7 +78,6 @@ LANGUAGES = {
     },
     "Français": {
         "greeting": "Bonjour ! Posez vos questions sur nos produits.",
-        "caption": "Posez vos questions sur le densimètre à ultrasons ENV200.",
         "placeholder": "Tapez votre question...",
         "spinner": "Génération de la réponse...",
         "new_chat": "Nouvelle conversation",
@@ -92,7 +86,6 @@ LANGUAGES = {
     },
     "Deutsch": {
         "greeting": "Hallo! Fragen Sie mich zu unseren Produkten.",
-        "caption": "Stellen Sie Fragen zum Ultraschall-Schlammkonzentrationsmesser ENV200.",
         "placeholder": "Geben Sie Ihre Frage ein...",
         "spinner": "Antwort wird generiert...",
         "new_chat": "Neues Gespräch",
@@ -101,7 +94,6 @@ LANGUAGES = {
     },
     "Português": {
         "greeting": "Olá! Pergunte sobre os nossos produtos.",
-        "caption": "Faça perguntas sobre o medidor de densidade ultrassônico ENV200.",
         "placeholder": "Digite sua pergunta...",
         "spinner": "Gerando resposta...",
         "new_chat": "Nova conversa",
@@ -110,7 +102,6 @@ LANGUAGES = {
     },
     "Tiếng Việt": {
         "greeting": "Xin chào! Hãy hỏi tôi về sản phẩm của chúng tôi.",
-        "caption": "Đặt câu hỏi về máy đo nồng độ bùn siêu âm ENV200.",
         "placeholder": "Nhập câu hỏi của bạn...",
         "spinner": "Đang tạo câu trả lời...",
         "new_chat": "Cuộc trò chuyện mới",
@@ -119,7 +110,6 @@ LANGUAGES = {
     },
     "ภาษาไทย": {
         "greeting": "สวัสดี! สอบถามเกี่ยวกับผลิตภัณฑ์ของเราได้เลย",
-        "caption": "สอบถามเกี่ยวกับเครื่องวัดความเข้มข้นตะกอนอัลตราโซนิก ENV200",
         "placeholder": "พิมพ์คำถามของคุณ...",
         "spinner": "กำลังสร้างคำตอบ...",
         "new_chat": "แชทใหม่",
@@ -128,7 +118,6 @@ LANGUAGES = {
     },
     "Bahasa Indonesia": {
         "greeting": "Halo! Tanyakan tentang produk kami.",
-        "caption": "Ajukan pertanyaan tentang pengukur kepadatan lumpur ultrasonik ENV200.",
         "placeholder": "Ketik pertanyaan Anda...",
         "spinner": "Membuat jawaban...",
         "new_chat": "Obrolan baru",
@@ -137,7 +126,6 @@ LANGUAGES = {
     },
     "العربية": {
         "greeting": "مرحباً! اسألني عن منتجاتنا.",
-        "caption": "اطرح أسئلتك حول جهاز قياس كثافة الحمأة بالموجات فوق الصوتية ENV200.",
         "placeholder": "اكتب سؤالك...",
         "spinner": "جاري إنشاء الإجابة...",
         "new_chat": "محادثة جديدة",
@@ -146,7 +134,6 @@ LANGUAGES = {
     },
     "Русский": {
         "greeting": "Здравствуйте! Задавайте вопросы о нашей продукции.",
-        "caption": "Задавайте вопросы об ультразвуковом измерителе плотности осадка ENV200.",
         "placeholder": "Введите ваш вопрос...",
         "spinner": "Генерация ответа...",
         "new_chat": "Новый чат",
@@ -352,7 +339,6 @@ with col4:
         st.rerun()
 
 lang_cfg = LANGUAGES[lang]
-st.caption(lang_cfg["caption"])
 
 # 클라이언트 초기화
 try:
