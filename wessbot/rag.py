@@ -146,7 +146,7 @@ class WessRagEngine:
         important = {
             "eea", "agc", "profile", "threshold", "echo", "amp", "asf", "relay", "r1", "r2",
             "4-20ma", "calibration", "density", "interface", "농도", "계면", "문턱전압", "수신감도",
-            "릴레이", "출력", "교정", "설정", "배선", "센서", "측정", "오류", "에러",
+            "릴레이", "출력", "보정", "설정", "배선", "센서", "측정", "오류", "에러",
         }
         return tokens | {t for t in important if t in query.lower()}
 

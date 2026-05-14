@@ -17,7 +17,7 @@ class ProductDetectionTests(unittest.TestCase):
         self.assertGreater(scores["ENV130"], scores["ENV200"])
 
     def test_detect_selected_conflict(self):
-        product, conflict, _ = detect_product("ENV200 EEA 교정 방법", "interface")
+        product, conflict, _ = detect_product("ENV200 EEA 보정 방법", "interface")
         self.assertEqual(product, "ENV200")
         self.assertTrue(conflict)
 

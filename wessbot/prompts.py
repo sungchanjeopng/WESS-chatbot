@@ -41,6 +41,7 @@ def build_system_prompt(
         "- If enough information is available, answer in this order when useful: 1) short conclusion, 2) procedure/checklist, 3) normal/abnormal interpretation, 4) cautions, 5) next question or next action.\n"
         "- If making an assumption is unavoidable, state the assumption before the answer.\n"
         "- Keep menu names, product names, and parameter names exact.\n"
+        "- In Korean answers, use '보정' for Calibration and do not use '교정'.\n"
         "- For measurement instability, recommend checking signal/installation/sensor condition before changing critical parameters.\n"
         "- For relay questions, clarify contact open/close condition and alarm/action direction to prevent field wiring mistakes.\n"
         f"- {lang_cfg['lang_rule']}\n"

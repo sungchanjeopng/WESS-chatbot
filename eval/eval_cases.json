@@ -1,6 +1,6 @@
 [
   {"question": "ENV130 Threshold 설정 방법 알려줘", "expected_product": "ENV130", "category": "parameter"},
-  {"question": "ENV200 EEA 교정은 어떻게 하나요?", "expected_product": "ENV200", "category": "calibration"},
+  {"question": "ENV200 EEA 보정은 어떻게 하나요?", "expected_product": "ENV200", "category": "calibration"},
   {"question": "ENV120 측정값이 계속 튈 때 점검 순서 알려줘", "expected_product": "ENV120", "category": "troubleshooting"},
   {"question": "농도계 4-20mA 출력 설정 방법", "expected_product": "ENV200", "category": "output"},
   {"question": "CH1 CH2 계면 측정이 이상해", "expected_product": "ENV130", "category": "troubleshooting"},

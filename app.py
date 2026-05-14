@@ -98,7 +98,7 @@ def render_sources(retrieval: RetrievalResult) -> None:
 SAMPLE_QUESTIONS_BY_PRODUCT = {
     "ENV200": {
         "한국어": (
-            "ENV200에서 EEA 교정은 어떻게 하나요?",
+            "ENV200에서 EEA 보정은 어떻게 하나요?",
             "농도계 4-20mA 출력 설정 방법 알려줘",
             "측정값이 흔들릴 때 확인할 항목은?",
         ),

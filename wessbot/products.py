@@ -38,7 +38,7 @@ PRODUCTS: Dict[str, ProductSpec] = {
         required_context_fields=("fluid/sludge type", "pipe size", "installation type", "calibration status", "output setting"),
         preferred_terms=(
             "EEA", "Detection Area", "Density", "농도", "Damping", "댐핑", "Pipe Diameter",
-            "배관 외경", "Calibration", "교정", "AGC", "Profile", "Clamp-on", "Spool-piece",
+            "배관 외경", "Calibration", "보정", "AGC", "Profile", "Clamp-on", "Spool-piece",
             "%", "ppm", "mg/L", "g/L",
         ),
         forbidden_terms=(
@@ -47,7 +47,7 @@ PRODUCTS: Dict[str, ProductSpec] = {
         ),
         aliases=("ENV200", "ENV-200", "농도계", "density", "concentration", "eea", "agc", "profile", "clamp-on", "spool"),
         sample_questions=(
-            "ENV200에서 EEA 교정은 어떻게 하나요?",
+            "ENV200에서 EEA 보정은 어떻게 하나요?",
             "농도계 4-20mA 출력 설정 방법 알려줘",
             "측정값이 흔들릴 때 확인할 항목은?",
         ),
@@ -125,7 +125,7 @@ PRODUCT_ALIASES.update({
 
 AMBIGUITY_TERMS = (
     "안돼", "안되", "이상", "오류", "에러", "문제", "불량", "안나", "튀", "흔들", "불안정",
-    "설정", "교정", "배선", "릴레이", "출력", "센서", "설치", "값", "측정",
+    "설정", "보정", "배선", "릴레이", "출력", "센서", "설치", "값", "측정",
     "not working", "error", "alarm", "unstable", "wrong", "calibration", "relay", "output", "wiring", "sensor",
 )
 

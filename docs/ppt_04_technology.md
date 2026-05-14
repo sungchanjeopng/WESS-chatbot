@@ -18,7 +18,7 @@
 3. 신호 증폭(AGC)
 4. 프로파일 축적
 5. EEA 계산
-6. 교정(Calibration) 적용
+6. 보정(Calibration) 적용
 7. 최종 농도값 출력
 
 ## Echo Screen
