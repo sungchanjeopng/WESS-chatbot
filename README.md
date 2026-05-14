@@ -1,4 +1,4 @@
-# WESS 제품 지원 챗봇
+# WESS-AI
 
 ENV120, ENV130, ENV200 제품 문서를 기반으로 답변하는 RAG 챗봇입니다.
 Streamlit 웹 UI와 Flask REST/SSE API를 함께 제공합니다.

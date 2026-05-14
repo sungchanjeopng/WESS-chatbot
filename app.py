@@ -308,7 +308,7 @@ def get_sample_questions(product: str, language: str) -> tuple[str, str, str]:
 
 start_api_server_if_enabled()
 
-st.set_page_config(page_title="WESS 제품 지원 챗봇", page_icon="🔧", layout="centered")
+st.set_page_config(page_title="WESS-AI", page_icon="🔧", layout="centered")
 st.markdown(
     """
 <style>

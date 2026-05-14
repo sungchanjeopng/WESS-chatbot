@@ -21,7 +21,7 @@ MODEL_OPTIONS = {
 LANGUAGES = {
     "English": {
         "code": "en",
-        "greeting": "Hello! Ask me anything about ENV120, ENV130, or ENV200.",
+        "greeting": "Hello!",
         "placeholder": "Type your question...",
         "spinner": "Generating answer...",
         "new_chat": "New Chat",
@@ -30,7 +30,7 @@ LANGUAGES = {
     },
     "한국어": {
         "code": "ko",
-        "greeting": "안녕하세요. ENV120, ENV130, ENV200 제품에 대해 물어보세요.",
+        "greeting": "안녕하세요.",
         "placeholder": "질문을 입력하세요...",
         "spinner": "답변을 생성하고 있습니다...",
         "new_chat": "새 대화",
@@ -39,7 +39,7 @@ LANGUAGES = {
     },
     "日本語": {
         "code": "ja",
-        "greeting": "こんにちは。ENV120、ENV130、ENV200についてご質問ください。",
+        "greeting": "こんにちは。",
         "placeholder": "質問を入力してください...",
         "spinner": "回答を生成しています...",
         "new_chat": "新しい会話",
@@ -48,7 +48,7 @@ LANGUAGES = {
     },
     "中文": {
         "code": "zh",
-        "greeting": "您好！请咨询 ENV120、ENV130 或 ENV200 相关问题。",
+        "greeting": "您好！",
         "placeholder": "请输入您的问题...",
         "spinner": "正在生成回答...",
         "new_chat": "新对话",
@@ -57,7 +57,7 @@ LANGUAGES = {
     },
     "Español": {
         "code": "es",
-        "greeting": "Hola. Pregúnteme sobre ENV120, ENV130 o ENV200.",
+        "greeting": "¡Hola!",
         "placeholder": "Escriba su pregunta...",
         "spinner": "Generando respuesta...",
         "new_chat": "Nueva conversación",
@@ -66,7 +66,7 @@ LANGUAGES = {
     },
     "Français": {
         "code": "fr",
-        "greeting": "Bonjour. Posez vos questions sur ENV120, ENV130 ou ENV200.",
+        "greeting": "Bonjour.",
         "placeholder": "Tapez votre question...",
         "spinner": "Génération de la réponse...",
         "new_chat": "Nouvelle conversation",
@@ -75,7 +75,7 @@ LANGUAGES = {
     },
     "Deutsch": {
         "code": "de",
-        "greeting": "Hallo. Fragen Sie mich zu ENV120, ENV130 oder ENV200.",
+        "greeting": "Hallo.",
         "placeholder": "Geben Sie Ihre Frage ein...",
         "spinner": "Antwort wird generiert...",
         "new_chat": "Neues Gespräch",
@@ -84,7 +84,7 @@ LANGUAGES = {
     },
     "Português": {
         "code": "pt",
-        "greeting": "Olá. Pergunte sobre ENV120, ENV130 ou ENV200.",
+        "greeting": "Olá.",
         "placeholder": "Digite sua pergunta...",
         "spinner": "Gerando resposta...",
         "new_chat": "Nova conversa",
@@ -93,7 +93,7 @@ LANGUAGES = {
     },
     "Tiếng Việt": {
         "code": "vi",
-        "greeting": "Xin chào. Hãy hỏi về ENV120, ENV130 hoặc ENV200.",
+        "greeting": "Xin chào.",
         "placeholder": "Nhập câu hỏi của bạn...",
         "spinner": "Đang tạo câu trả lời...",
         "new_chat": "Cuộc trò chuyện mới",
@@ -102,7 +102,7 @@ LANGUAGES = {
     },
     "ภาษาไทย": {
         "code": "th",
-        "greeting": "สวัสดี สอบถามเกี่ยวกับ ENV120, ENV130 หรือ ENV200 ได้เลย",
+        "greeting": "สวัสดี",
         "placeholder": "พิมพ์คำถามของคุณ...",
         "spinner": "กำลังสร้างคำตอบ...",
         "new_chat": "แชทใหม่",
@@ -111,7 +111,7 @@ LANGUAGES = {
     },
     "Bahasa Indonesia": {
         "code": "id",
-        "greeting": "Halo. Tanyakan tentang ENV120, ENV130, atau ENV200.",
+        "greeting": "Halo.",
         "placeholder": "Ketik pertanyaan Anda...",
         "spinner": "Membuat jawaban...",
         "new_chat": "Obrolan baru",
@@ -120,7 +120,7 @@ LANGUAGES = {
     },
     "العربية": {
         "code": "ar",
-        "greeting": "مرحباً. اسأل عن ENV120 أو ENV130 أو ENV200.",
+        "greeting": "مرحباً.",
         "placeholder": "اكتب سؤالك...",
         "spinner": "جاري إنشاء الإجابة...",
         "new_chat": "محادثة جديدة",
@@ -129,7 +129,7 @@ LANGUAGES = {
     },
     "Русский": {
         "code": "ru",
-        "greeting": "Здравствуйте. Задавайте вопросы об ENV120, ENV130 или ENV200.",
+        "greeting": "Здравствуйте.",
         "placeholder": "Введите ваш вопрос...",
         "spinner": "Генерация ответа...",
         "new_chat": "Новый чат",
