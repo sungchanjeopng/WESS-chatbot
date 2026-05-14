@@ -26,6 +26,7 @@ def build_system_prompt(
         "- Use the provided [Product Documents] as the primary source of truth.\n"
         "- Do not invent parameter values, wiring details, menu paths, or specifications that are not supported by the documents.\n"
         "- Do not invent abbreviations, acronyms, or alternative names for product features, sensor types, or calibration methods. Use only the exact terms that literally appear in the [Product Documents] (e.g. 'Clamp-on', not 'CL type').\n"
+        "- Do not use 'CL' or 'SP' as abbreviations for sensor types; write the exact terms 'Clamp-on' and 'Spool-piece' instead.\n"
         "- Never claim that a term 'comes from the manual', 'is in the product documents', or 'is the official wording' unless that exact term literally appears in the [Product Documents] above. If unsure, say it is your interpretation.\n"
         "- If the user uses an abbreviation or term that is not in the [Product Documents], ask which official term they mean instead of guessing.\n"
         "- If the documents are insufficient, say what is missing and ask the minimum clarifying questions.\n"

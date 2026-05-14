@@ -43,7 +43,7 @@ PRODUCTS: Dict[str, ProductSpec] = {
         ),
         forbidden_terms=(
             "Threshold/문턱전압", "Echo AMP/수신감도", "ASF", "Light/Heavy", "CH1/CH2",
-            "Level/Distance", "m/ft as level units",
+            "Level/Distance", "m/ft as level units", "CL", "SP", "CL type", "SP type",
         ),
         aliases=("ENV200", "ENV-200", "농도계", "density", "concentration", "eea", "agc", "profile", "clamp-on", "spool"),
         sample_questions=(
