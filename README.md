@@ -46,8 +46,8 @@ OPENAI_API_KEY="sk-..."
 선택 secrets:
 
 ```toml
-WESS_CHAT_MODEL="gpt-5.4-mini"
-WESS_FAST_MODEL="gpt-5.4-nano"
+WESS_CHAT_MODEL="gpt-5.4"
+WESS_FAST_MODEL="gpt-5.4"
 WESS_EMBEDDING_MODEL="text-embedding-3-small"
 CHROMA_DIR="./chroma_db"
 ```
