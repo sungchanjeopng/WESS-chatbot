@@ -88,7 +88,7 @@ PRODUCTS: Dict[str, ProductSpec] = {
         answer_role="product support specialist for ultrasonic sludge interface meter (ENV120)",
         required_context_fields=("tank/site condition", "sensor type", "Threshold", "Echo AMP", "relay/output setting", "measurement symptom"),
         preferred_terms=(
-            "Threshold", "문턱전압", "Echo AMP", "수신감도", "ASF", "Damping", "댐핑",
+            "Echo AMP", "수신감도", "Threshold", "문턱전압", "ASF", "Damping", "댐핑",
             "Level", "Distance", "Echo", "m", "ft", "sensor cleaning", "센서 세정장치",
         ),
         forbidden_terms=(
