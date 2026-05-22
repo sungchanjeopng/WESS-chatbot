@@ -22,6 +22,9 @@ class FakeEngine:
     def answer_once(self, *args, **kwargs):
         return "테스트 답변", FakeRetrieval()
 
+    def answer_once_with_images(self, *args, **kwargs):
+        return "이미지 테스트 답변", FakeRetrieval()
+
 
 class ApiTests(unittest.TestCase):
     def setUp(self):
@@ -47,6 +50,17 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(data["answer"], "테스트 답변")
         self.assertEqual(data["product"], "ENV130")
         self.assertIn("sources", data)
+
+    def test_chat_accepts_image_data_urls(self):
+        payload = {
+            "question": "파형 분석해줘",
+            "product": "ENV120",
+            "image_data_urls": ["data:image/png;base64,iVBORw0KGgo="],
+        }
+        with patch.object(api, "init", return_value=FakeEngine()):
+            res = self.client.post("/api/chat", json=payload)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.get_json()["answer"], "이미지 테스트 답변")
 
 
 if __name__ == "__main__":

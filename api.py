@@ -70,6 +70,17 @@ def _safe_history(value: Any) -> list[dict[str, str]]:
     return out
 
 
+def _safe_image_data_urls(value: Any) -> list[str]:
+    """Accept pre-encoded data:image/... URLs from API clients."""
+    if not isinstance(value, list):
+        return []
+    out: list[str] = []
+    for item in value[:4]:
+        if isinstance(item, str) and item.startswith("data:image/") and ";base64," in item:
+            out.append(item)
+    return out
+
+
 @app.route("/api/health", methods=["GET"])
 def health():
     try:
@@ -124,17 +135,28 @@ def chat():
     product = normalize_product(data.get("product", "auto"), default="auto")
     language = normalize_language(data.get("language") or data.get("lang") or "ko")
     history = _safe_history(data.get("history", []))
+    image_data_urls = _safe_image_data_urls(data.get("image_data_urls", []))
     model = str(data.get("model") or DEFAULT_CHAT_MODEL)
 
     try:
         e = init()
-        answer, retrieval = e.answer_once(
-            question,
-            product=product,
-            language=language,
-            history=history,
-            model=model,
-        )
+        if image_data_urls:
+            answer, retrieval = e.answer_once_with_images(
+                question,
+                image_data_urls,
+                product=product,
+                language=language,
+                history=history,
+                model=model,
+            )
+        else:
+            answer, retrieval = e.answer_once(
+                question,
+                product=product,
+                language=language,
+                history=history,
+                model=model,
+            )
         return jsonify(
             {
                 "answer": answer,

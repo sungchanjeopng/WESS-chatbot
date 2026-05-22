@@ -1,6 +1,7 @@
 """WESS product-support chatbot UI (Streamlit)."""
 from __future__ import annotations
 
+import base64
 import os
 import threading
 from typing import Iterable
@@ -81,6 +82,13 @@ def stream_text(openai_stream: Iterable) -> Iterable[str]:
         delta = chunk.choices[0].delta
         if getattr(delta, "content", None):
             yield delta.content
+
+
+def uploaded_image_to_data_url(uploaded_file) -> str:
+    """Convert a Streamlit uploaded image to an OpenAI-compatible data URL."""
+    mime_type = uploaded_file.type or "image/png"
+    encoded = base64.b64encode(uploaded_file.getvalue()).decode("ascii")
+    return f"data:{mime_type};base64,{encoded}"
 
 
 def render_sources(retrieval: RetrievalResult) -> None:
@@ -365,26 +373,49 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
+uploaded_images = st.file_uploader(
+    "파형/화면 사진 첨부 (선택)",
+    type=["png", "jpg", "jpeg", "webp"],
+    accept_multiple_files=True,
+    help="ENV120/ENV130 파형 화면, Avg/Real 화면, 설정 화면 사진을 올리면 이미지까지 보고 분석합니다. 최대 4장까지 사용합니다.",
+)
+
 prompt = st.chat_input(lang_cfg["placeholder"])
 if st.session_state.get("queued_prompt"):
     prompt = st.session_state.pop("queued_prompt")
 
 if prompt:
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    image_files = list(uploaded_images or [])[:4]
+    image_note = f"\n\n[첨부 이미지: {len(image_files)}장]" if image_files else ""
+    st.session_state.messages.append({"role": "user", "content": prompt + image_note})
     with st.chat_message("user"):
         st.markdown(prompt)
+        for image_file in image_files:
+            st.image(image_file, caption=image_file.name, use_container_width=True)
 
     with st.chat_message("assistant"):
         try:
             with st.spinner(lang_cfg["spinner"]):
-                stream, retrieval = engine.answer_stream(
-                    prompt,
-                    product=product,
-                    language=lang,
-                    history=st.session_state.messages,
-                    model=model_name,
-                )
-            answer = st.write_stream(stream_text(stream))
+                if image_files:
+                    image_data_urls = [uploaded_image_to_data_url(image_file) for image_file in image_files]
+                    answer, retrieval = engine.answer_once_with_images(
+                        prompt,
+                        image_data_urls,
+                        product=product,
+                        language=lang,
+                        history=st.session_state.messages,
+                        model=model_name,
+                    )
+                    st.markdown(answer)
+                else:
+                    stream, retrieval = engine.answer_stream(
+                        prompt,
+                        product=product,
+                        language=lang,
+                        history=st.session_state.messages,
+                        model=model_name,
+                    )
+                    answer = st.write_stream(stream_text(stream))
             render_sources(retrieval)
             st.session_state.last_sources = retrieval.public_sources(limit=8)
         except Exception as exc:

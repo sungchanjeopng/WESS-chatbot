@@ -295,6 +295,40 @@ class WessRagEngine:
         )
         return response.choices[0].message.content or "", retrieval
 
+    def answer_once_with_images(
+        self,
+        question: str,
+        image_data_urls: list[str],
+        *,
+        product: str = "auto",
+        language: str = "한국어",
+        history: Optional[list[dict[str, str]]] = None,
+        model: str = DEFAULT_CHAT_MODEL,
+        temperature: float = 0.8,
+    ) -> tuple[str, RetrievalResult]:
+        """Answer one question with attached waveform/screen images."""
+        retrieval = self.retrieve(question, product=product)
+        messages = self.build_messages(question, retrieval, language=language, history=history)
+        text = messages[-1]["content"]
+        messages[-1]["content"] = [
+            {
+                "type": "text",
+                "text": (
+                    text
+                    + "\n\n[Attached image analysis instruction]\n"
+                    + "If the image is a WESS waveform/screen capture, inspect the visible waveform, threshold line, measurement bar, peaks, noise, and displayed values. "
+                    + "Do not invent unreadable numbers; say when a value is not legible. Give practical field interpretation and next checks."
+                ),
+            },
+            *({"type": "image_url", "image_url": {"url": url}} for url in image_data_urls[:4]),
+        ]
+        response = self._client().chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+        )
+        return response.choices[0].message.content or "", retrieval
+
     def answer_stream(
         self,
         question: str,
