@@ -314,6 +314,27 @@ def get_sample_questions(product: str, language: str) -> tuple[str, str, str]:
     return product_questions.get(lang, product_questions["한국어"])
 
 
+IMAGE_INPUT_HINTS = {
+    "English": "Photos can be dragged here or pasted with Ctrl+V.",
+    "한국어": "사진은 드래그하거나 Ctrl+V로 붙여넣을 수 있습니다.",
+    "日本語": "写真はドラッグするか、Ctrl+Vで貼り付けできます。",
+    "中文": "可拖放图片，或使用 Ctrl+V 粘贴。",
+    "Español": "Puede arrastrar fotos o pegarlas con Ctrl+V.",
+    "Français": "Vous pouvez glisser des photos ou les coller avec Ctrl+V.",
+    "Deutsch": "Fotos können per Drag-and-drop oder mit Ctrl+V eingefügt werden.",
+    "Português": "Você pode arrastar fotos ou colá-las com Ctrl+V.",
+    "Tiếng Việt": "Có thể kéo thả ảnh hoặc dán bằng Ctrl+V.",
+    "ภาษาไทย": "ลากรูปภาพมาวาง หรือวางด้วย Ctrl+V ได้",
+    "Bahasa Indonesia": "Foto dapat diseret ke sini atau ditempel dengan Ctrl+V.",
+    "العربية": "يمكنك سحب الصور وإفلاتها أو لصقها باستخدام Ctrl+V.",
+    "Русский": "Фото можно перетащить сюда или вставить с помощью Ctrl+V.",
+}
+
+
+def get_image_input_hint(language: str) -> str:
+    return IMAGE_INPUT_HINTS.get(normalize_language(language), IMAGE_INPUT_HINTS["한국어"])
+
+
 start_api_server_if_enabled()
 
 st.set_page_config(page_title="WESS-AI", page_icon="🔧", layout="centered")
@@ -374,7 +395,7 @@ for msg in st.session_state.messages:
         st.markdown(msg["content"])
 
 chat_value = st.chat_input(
-    lang_cfg["placeholder"] + "  ·  사진은 드래그하거나 Ctrl+V로 붙여넣을 수 있습니다.",
+    f"{lang_cfg['placeholder']}  ·  {get_image_input_hint(lang)}",
     accept_file="multiple",
     file_type=["png", "jpg", "jpeg", "webp"],
 )
