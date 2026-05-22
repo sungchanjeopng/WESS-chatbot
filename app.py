@@ -348,6 +348,23 @@ st.markdown(
     .block-container { max-width: 920px; padding-top: 1rem; padding-bottom: 2rem; }
     #MainMenu, footer, header { visibility: hidden; }
     .small-note { color: #666; font-size: 0.86rem; }
+    div[data-testid="stChatInput"] div[data-testid="stChatInputFileUploadButton"] {
+        margin-right: 0.35rem;
+        padding-right: 0.35rem;
+        border-right: 1px solid rgba(49, 51, 63, 0.12);
+        flex-shrink: 0;
+    }
+    div[data-testid="stChatInput"] div[data-testid="stChatInputFileUploadButton"] button {
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid rgba(49, 51, 63, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.95);
+    }
+    div[data-testid="stChatInput"] div[data-testid="stChatInputFileUploadButton"] button:hover {
+        background: rgba(49, 51, 63, 0.06);
+        border-color: rgba(49, 51, 63, 0.28);
+    }
     @media (max-width: 768px) {
         .stSelectbox > div { font-size: 14px; }
         .stChatMessage { padding: 0.5rem; }
