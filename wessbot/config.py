@@ -7,8 +7,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DIR = Path(os.getenv("CHROMA_DIR", str(BASE_DIR / "chroma_db")))
 DEFAULT_EMBEDDING_MODEL = os.getenv("WESS_EMBEDDING_MODEL", "text-embedding-3-small")
-DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.5")
-FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.5")
+DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.4-pro")
+FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.4-pro")
 DEFAULT_N_RESULTS = int(os.getenv("WESS_RAG_N_RESULTS", "18"))
 MAX_HISTORY_MESSAGES = int(os.getenv("WESS_MAX_HISTORY_MESSAGES", "16"))
 MAX_CONTEXT_CHARS = int(os.getenv("WESS_MAX_CONTEXT_CHARS", "18000"))
