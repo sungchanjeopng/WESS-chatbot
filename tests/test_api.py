@@ -71,6 +71,11 @@ class ApiTests(unittest.TestCase):
         kwargs = WessRagEngine._chat_kwargs("gpt-5.4", [{"role": "user", "content": "hi"}], 0.8)
         self.assertEqual(kwargs["temperature"], 0.8)
 
+    def test_default_answer_temperature_is_point_two(self):
+        self.assertEqual(WessRagEngine.answer_once.__kwdefaults__["temperature"], 0.2)
+        self.assertEqual(WessRagEngine.answer_once_with_images.__kwdefaults__["temperature"], 0.2)
+        self.assertEqual(WessRagEngine.answer_stream.__kwdefaults__["temperature"], 0.2)
+
 
 if __name__ == "__main__":
     unittest.main()
