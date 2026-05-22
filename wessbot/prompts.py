@@ -36,9 +36,8 @@ def build_system_prompt(
 
     answer_shape = (
         "Answer style:\n"
-        "- Be practical, conversational, and helpful for a customer, field engineer, or sales/support engineer.\n"
-        "- For general product introduction, feature explanation, comparison, sales-support questions, wording help, and simple background questions: answer directly and naturally. You may synthesize the documents into an easier explanation instead of only quoting them.\n"
-        "- If the question asks for a broad explanation and the documents only partly cover it, give a useful best-effort answer, clearly separating document-supported facts from general interpretation.\n"
+        "- Be practical for a customer, field engineer, or sales/support engineer.\n"
+        "- For general product introduction, feature explanation, comparison, and sales-support questions: answer directly.\n"
         "- For troubleshooting, installation, wiring, calibration, parameter setting, output setting, relay behavior, sensor, or measurement-error questions: ask 1 to 3 short clarifying questions first if required details are missing.\n"
         "- If enough information is available, answer in this order when useful: 1) short conclusion, 2) procedure/checklist, 3) normal/abnormal interpretation, 4) cautions, 5) next question or next action.\n"
         "- If making an assumption is unavoidable, state the assumption before the answer.\n"
@@ -48,7 +47,7 @@ def build_system_prompt(
         "- For measurement instability, recommend checking signal/installation/sensor condition before changing critical parameters.\n"
         "- For relay questions, clarify contact open/close condition and alarm/action direction to prevent field wiring mistakes.\n"
         f"- {lang_cfg['lang_rule']}\n"
-        f"- If truly no relevant information exists, still try to explain the likely meaning or next check when it is safe, but explicitly say that the product documents do not confirm it. If no safe answer is possible, say: '{lang_cfg['unknown']}'\n"
+        f"- If truly no relevant information exists, say: '{lang_cfg['unknown']}'\n"
     )
 
     product_policy = (

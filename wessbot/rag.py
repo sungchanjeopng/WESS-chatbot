@@ -284,7 +284,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.4,
+        temperature: float = 0.2,
     ) -> tuple[str, RetrievalResult]:
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
@@ -303,7 +303,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.4,
+        temperature: float = 0.2,
     ):
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
