@@ -373,19 +373,25 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-uploaded_images = st.file_uploader(
-    "파형/화면 사진 첨부 (선택)",
-    type=["png", "jpg", "jpeg", "webp"],
-    accept_multiple_files=True,
-    help="ENV120/ENV130 파형 화면, Avg/Real 화면, 설정 화면 사진을 올리면 이미지까지 보고 분석합니다. 최대 4장까지 사용합니다.",
+chat_value = st.chat_input(
+    lang_cfg["placeholder"] + "  ·  사진은 드래그하거나 Ctrl+V로 붙여넣을 수 있습니다.",
+    accept_file="multiple",
+    file_type=["png", "jpg", "jpeg", "webp"],
 )
-
-prompt = st.chat_input(lang_cfg["placeholder"])
+image_files = []
+prompt = None
+if chat_value:
+    if isinstance(chat_value, str):
+        prompt = chat_value
+    else:
+        prompt = (getattr(chat_value, "text", "") or "").strip()
+        image_files = list(getattr(chat_value, "files", []) or [])[:4]
+        if image_files and not prompt:
+            prompt = "첨부한 파형/화면 사진 분석해줘"
 if st.session_state.get("queued_prompt"):
     prompt = st.session_state.pop("queued_prompt")
 
 if prompt:
-    image_files = list(uploaded_images or [])[:4]
     image_note = f"\n\n[첨부 이미지: {len(image_files)}장]" if image_files else ""
     st.session_state.messages.append({"role": "user", "content": prompt + image_note})
     with st.chat_message("user"):
