@@ -71,10 +71,10 @@ class ApiTests(unittest.TestCase):
         kwargs = WessRagEngine._chat_kwargs("gpt-5.4", [{"role": "user", "content": "hi"}], 0.8)
         self.assertEqual(kwargs["temperature"], 0.8)
 
-    def test_default_answer_temperature_is_one(self):
-        self.assertEqual(WessRagEngine.answer_once.__kwdefaults__["temperature"], 1.0)
-        self.assertEqual(WessRagEngine.answer_once_with_images.__kwdefaults__["temperature"], 1.0)
-        self.assertEqual(WessRagEngine.answer_stream.__kwdefaults__["temperature"], 1.0)
+    def test_default_answer_temperature_is_point_two(self):
+        self.assertEqual(WessRagEngine.answer_once.__kwdefaults__["temperature"], 0.2)
+        self.assertEqual(WessRagEngine.answer_once_with_images.__kwdefaults__["temperature"], 0.2)
+        self.assertEqual(WessRagEngine.answer_stream.__kwdefaults__["temperature"], 0.2)
 
     def test_env120_image_instruction_defines_d_and_s_labels(self):
         self.assertIn("top area/scale as Empty and the measurement range", IMAGE_ANALYSIS_INSTRUCTION)
