@@ -72,8 +72,12 @@ def start_api_server_if_enabled() -> None:
     threading.Thread(target=_run, daemon=True).start()
 
 
+ENGINE_CACHE_VERSION = "image-analysis-v2"
+
+
 @st.cache_resource(show_spinner=False)
-def get_engine() -> WessRagEngine:
+def get_engine(cache_version: str = ENGINE_CACHE_VERSION) -> WessRagEngine:
+    # cache_version intentionally busts old Streamlit cached engine objects after deployments.
     return WessRagEngine()
 
 
@@ -354,7 +358,10 @@ st.markdown(
 )
 
 try:
-    engine = get_engine()
+    engine = get_engine(ENGINE_CACHE_VERSION)
+    if not hasattr(engine, "answer_once_with_images"):
+        get_engine.clear()
+        engine = get_engine(ENGINE_CACHE_VERSION + "-refresh")
 except Exception as exc:
     st.error(f"초기화 실패: {exc}")
     st.stop()
