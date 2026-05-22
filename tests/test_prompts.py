@@ -17,6 +17,13 @@ class PromptTests(unittest.TestCase):
         self.assertIn("CH2", prompt)
         self.assertIn("Answer only in English", prompt)
 
+    def test_numeric_guardrail_for_wess_settings(self):
+        prompt = build_system_prompt("ENV120", "문서 내용", "한국어")
+        self.assertIn("Numeric guardrail", prompt)
+        self.assertIn("voltage/current ranges", prompt)
+        self.assertIn("do not repair or guess", prompt)
+        self.assertIn("0.2~2.2V", prompt)
+
     def test_conflict_message(self):
         msg = build_product_conflict_message("ENV130", "ENV200", "한국어")
         self.assertIn("ENV130", msg)
