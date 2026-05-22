@@ -77,7 +77,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(WessRagEngine.answer_stream.__kwdefaults__["temperature"], 1.0)
 
     def test_env120_image_instruction_defines_d_and_s_labels(self):
-        self.assertIn("top indicator/line as Empty", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("top area/scale as Empty and the measurement range", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("does not change", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("unless the Empty setting is intentionally changed", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("D = Distance/거리", IMAGE_ANALYSIS_INSTRUCTION)
