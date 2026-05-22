@@ -276,6 +276,18 @@ class WessRagEngine:
         messages.append({"role": "user", "content": user_question})
         return messages
 
+    @staticmethod
+    def _chat_kwargs(model: str, messages: list[dict[str, Any]], temperature: float, *, stream: bool = False) -> dict[str, Any]:
+        """Build chat.completions kwargs while avoiding unsupported model parameters."""
+        kwargs: dict[str, Any] = {"model": model, "messages": messages}
+        # GPT-5.5 currently accepts only its default temperature on chat.completions.
+        # Omitting the parameter lets the API use that default and avoids 400 errors.
+        if not str(model).startswith("gpt-5.5"):
+            kwargs["temperature"] = temperature
+        if stream:
+            kwargs["stream"] = True
+        return kwargs
+
     def answer_once(
         self,
         question: str,
@@ -289,9 +301,7 @@ class WessRagEngine:
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         response = self._client().chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
+            **self._chat_kwargs(model, messages, temperature)
         )
         return response.choices[0].message.content or "", retrieval
 
@@ -323,9 +333,7 @@ class WessRagEngine:
             *({"type": "image_url", "image_url": {"url": url}} for url in image_data_urls[:4]),
         ]
         response = self._client().chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
+            **self._chat_kwargs(model, messages, temperature)
         )
         return response.choices[0].message.content or "", retrieval
 
@@ -342,9 +350,6 @@ class WessRagEngine:
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         stream = self._client().chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            stream=True,
+            **self._chat_kwargs(model, messages, temperature, stream=True)
         )
         return stream, retrieval

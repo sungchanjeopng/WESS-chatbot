@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import api
+from wessbot.rag import WessRagEngine
 
 
 class FakeRetrieval:
@@ -61,6 +62,14 @@ class ApiTests(unittest.TestCase):
             res = self.client.post("/api/chat", json=payload)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.get_json()["answer"], "이미지 테스트 답변")
+
+    def test_gpt55_chat_kwargs_omit_temperature(self):
+        kwargs = WessRagEngine._chat_kwargs("gpt-5.5", [{"role": "user", "content": "hi"}], 0.8)
+        self.assertNotIn("temperature", kwargs)
+
+    def test_other_chat_kwargs_keep_temperature(self):
+        kwargs = WessRagEngine._chat_kwargs("gpt-5.4", [{"role": "user", "content": "hi"}], 0.8)
+        self.assertEqual(kwargs["temperature"], 0.8)
 
 
 if __name__ == "__main__":
