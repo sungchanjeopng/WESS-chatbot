@@ -63,9 +63,9 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.get_json()["answer"], "이미지 테스트 답변")
 
-    def test_gpt55_chat_kwargs_omit_temperature(self):
+    def test_gpt55_chat_kwargs_use_temperature_one(self):
         kwargs = WessRagEngine._chat_kwargs("gpt-5.5", [{"role": "user", "content": "hi"}], 0.8)
-        self.assertNotIn("temperature", kwargs)
+        self.assertEqual(kwargs["temperature"], 1)
 
     def test_other_chat_kwargs_keep_temperature(self):
         kwargs = WessRagEngine._chat_kwargs("gpt-5.4", [{"role": "user", "content": "hi"}], 0.8)

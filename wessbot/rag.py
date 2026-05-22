@@ -280,10 +280,9 @@ class WessRagEngine:
     def _chat_kwargs(model: str, messages: list[dict[str, Any]], temperature: float, *, stream: bool = False) -> dict[str, Any]:
         """Build chat.completions kwargs while avoiding unsupported model parameters."""
         kwargs: dict[str, Any] = {"model": model, "messages": messages}
-        # GPT-5.5 currently accepts only its default temperature on chat.completions.
-        # Omitting the parameter lets the API use that default and avoids 400 errors.
-        if not str(model).startswith("gpt-5.5"):
-            kwargs["temperature"] = temperature
+        # GPT-5.5 currently accepts only temperature=1 on chat.completions.
+        # Keep it explicit so the runtime configuration is visible and stable.
+        kwargs["temperature"] = 1 if str(model).startswith("gpt-5.5") else temperature
         if stream:
             kwargs["stream"] = True
         return kwargs
@@ -296,7 +295,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.8,
+        temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
@@ -314,7 +313,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.8,
+        temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
         """Answer one question with attached waveform/screen images."""
         retrieval = self.retrieve(question, product=product)
@@ -345,7 +344,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.8,
+        temperature: float = 1.0,
     ):
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
