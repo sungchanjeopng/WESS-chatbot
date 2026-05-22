@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import api
-from wessbot.rag import WessRagEngine
+from wessbot.rag import IMAGE_ANALYSIS_INSTRUCTION, WessRagEngine
 
 
 class FakeRetrieval:
@@ -75,6 +75,12 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(WessRagEngine.answer_once.__kwdefaults__["temperature"], 0.2)
         self.assertEqual(WessRagEngine.answer_once_with_images.__kwdefaults__["temperature"], 0.2)
         self.assertEqual(WessRagEngine.answer_stream.__kwdefaults__["temperature"], 0.2)
+
+    def test_env120_image_instruction_defines_d_and_s_labels(self):
+        self.assertIn("top indicator/line as Empty", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("D = Distance/거리", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("S = Sludge Level/슬러지 레벨", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("Do not confuse D with sludge level or S with distance", IMAGE_ANALYSIS_INSTRUCTION)
 
 
 if __name__ == "__main__":

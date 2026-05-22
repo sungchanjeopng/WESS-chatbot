@@ -28,6 +28,16 @@ from .prompts import (
 )
 
 
+IMAGE_ANALYSIS_INSTRUCTION = (
+    "If the image is a WESS waveform/screen capture, inspect the visible waveform, threshold line, "
+    "measurement bar, peaks, noise, and displayed values. For ENV120 waveform screens, interpret the "
+    "top indicator/line as Empty, and interpret the lower display labels as D = Distance/거리 and "
+    "S = Sludge Level/슬러지 레벨. Do not confuse D with sludge level or S with distance. "
+    "Do not invent unreadable numbers; say when a value is not legible. Give practical field "
+    "interpretation and next checks."
+)
+
+
 @dataclass
 class RetrievedChunk:
     product: str
@@ -325,8 +335,7 @@ class WessRagEngine:
                 "text": (
                     text
                     + "\n\n[Attached image analysis instruction]\n"
-                    + "If the image is a WESS waveform/screen capture, inspect the visible waveform, threshold line, measurement bar, peaks, noise, and displayed values. "
-                    + "Do not invent unreadable numbers; say when a value is not legible. Give practical field interpretation and next checks."
+                    + IMAGE_ANALYSIS_INSTRUCTION
                 ),
             },
             *({"type": "image_url", "image_url": {"url": url}} for url in image_data_urls[:4]),
