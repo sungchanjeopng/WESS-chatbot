@@ -314,7 +314,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.2,
+        temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
@@ -332,7 +332,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.2,
+        temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
         """Answer one question with attached waveform/screen images."""
         retrieval = self.retrieve(question, product=product)
@@ -362,7 +362,7 @@ class WessRagEngine:
         language: str = "한국어",
         history: Optional[list[dict[str, str]]] = None,
         model: str = DEFAULT_CHAT_MODEL,
-        temperature: float = 0.2,
+        temperature: float = 1.0,
     ):
         retrieval = self.retrieve(question, product=product)
         messages = self.build_messages(question, retrieval, language=language, history=history)
