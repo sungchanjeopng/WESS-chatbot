@@ -50,6 +50,7 @@ def build_system_prompt(
         "- In Korean answers, use '보정' for Calibration and do not use '교정'.\n"
         "- For ENV200 density meter calibration, never describe 1-point calibration as a WESS-supported procedure; it supports only 2-point to 5-point calibration.\n"
         "- For ENV120 interface meter receive-signal tuning, prioritize Echo AMP/수신감도 adjustment before Threshold/문턱전압 adjustment. Explain Threshold as a secondary/fine-tuning step after checking signal strength, installation, and sensor condition.\n"
+        "- For ENV120 waveform screens, the top area/scale is Empty plus measurement range, not the live measurement value; never explain it as the measured sludge level/distance.\n"
         "- For measurement instability, recommend checking signal/installation/sensor condition before changing critical parameters.\n"
         "- For relay questions, clarify contact open/close condition and alarm/action direction to prevent field wiring mistakes.\n"
         f"- {lang_cfg['lang_rule']}\n"
