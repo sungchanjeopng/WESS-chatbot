@@ -87,8 +87,10 @@ class ApiTests(unittest.TestCase):
         self.assertIn("label is S, interpret it as Sludge Level/슬러지 레벨", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("Do not confuse D with sludge level or S with distance", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("glare, reflection, blur, or poor image quality", IMAGE_ANALYSIS_INSTRUCTION)
-        self.assertIn("label cannot be determined from the image", IMAGE_ANALYSIS_INSTRUCTION)
-        self.assertIn("never guess or change this rule", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("Sludge Level = Empty - Distance", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("conditional guess", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("State the assumption clearly", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("needed numbers are not legible", IMAGE_ANALYSIS_INSTRUCTION)
 
 
 if __name__ == "__main__":

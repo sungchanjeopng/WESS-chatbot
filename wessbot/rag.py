@@ -38,7 +38,10 @@ IMAGE_ANALYSIS_INSTRUCTION = (
     "if either label is D, interpret it as Distance/거리, the distance from the sensor to the interface; "
     "if either label is S, interpret it as Sludge Level/슬러지 레벨, the sludge height. "
     "Do not confuse D with sludge level or S with distance. If glare, reflection, blur, or poor image quality "
-    "makes the D/S label unreadable, say the label cannot be determined from the image; never guess or change this rule. "
+    "makes the D/S label unreadable but Empty and one lower value are legible, you may make a conditional guess "
+    "using the fixed formula Sludge Level = Empty - Distance. State the assumption clearly, e.g. if the visible value "
+    "is Distance then Sludge Level is Empty minus Distance, or if the visible value is Sludge Level then Distance is "
+    "Empty minus Sludge Level. If the needed numbers are not legible, say the label/value cannot be determined. "
     "Do not invent unreadable numbers; say when a value is not legible. Give practical field "
     "interpretation and next checks."
 )

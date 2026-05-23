@@ -38,8 +38,10 @@ class PromptTests(unittest.TestCase):
         self.assertIn("Distance/거리 from the sensor to the interface", prompt)
         self.assertIn("Sludge Level/슬러지 레벨, the sludge height", prompt)
         self.assertIn("glare, reflection, blur, or poor image quality", prompt)
-        self.assertIn("label cannot be determined from the image", prompt)
-        self.assertIn("never guess", prompt)
+        self.assertIn("Sludge Level = Empty - Distance", prompt)
+        self.assertIn("make a conditional guess", prompt)
+        self.assertIn("state the assumption clearly", prompt)
+        self.assertIn("label/value cannot be determined", prompt)
         self.assertIn("explain the upper-left value as the measured sludge level/distance", prompt)
 
     def test_conflict_message(self):
