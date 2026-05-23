@@ -31,7 +31,7 @@ class PromptTests(unittest.TestCase):
 
     def test_env120_waveform_top_area_is_not_measurement_value(self):
         prompt = build_system_prompt("ENV120", "문서 내용", "한국어")
-        self.assertIn("top area/scale is Empty plus measurement range", prompt)
+        self.assertIn("upper-left value is Empty plus measurement range", prompt)
         self.assertIn("not the live measurement value", prompt)
         self.assertIn("never explain it as the measured sludge level/distance", prompt)
 
