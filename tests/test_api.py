@@ -67,8 +67,8 @@ class ApiTests(unittest.TestCase):
         kwargs = WessRagEngine._chat_kwargs("gpt-5.5", [{"role": "user", "content": "hi"}], 0.8)
         self.assertEqual(kwargs["temperature"], 1)
 
-    def test_other_chat_kwargs_keep_temperature(self):
-        kwargs = WessRagEngine._chat_kwargs("gpt-4.1", [{"role": "user", "content": "hi"}], 0.8)
+    def test_non_gpt55_chat_kwargs_keep_requested_temperature(self):
+        kwargs = WessRagEngine._chat_kwargs("test-non-gpt55-model", [{"role": "user", "content": "hi"}], 0.8)
         self.assertEqual(kwargs["temperature"], 0.8)
 
     def test_default_answer_temperature_is_one(self):
