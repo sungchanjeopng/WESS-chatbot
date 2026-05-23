@@ -31,9 +31,12 @@ class PromptTests(unittest.TestCase):
 
     def test_env120_waveform_top_area_is_not_measurement_value(self):
         prompt = build_system_prompt("ENV120", "문서 내용", "한국어")
-        self.assertIn("upper-left value is Empty plus measurement range", prompt)
+        self.assertIn("upper-left value is measurement range plus Empty", prompt)
+        self.assertIn("upper-right value is Threshold/문턱전압", prompt)
         self.assertIn("not the live measurement value", prompt)
-        self.assertIn("never explain it as the measured sludge level/distance", prompt)
+        self.assertIn("Distance/거리 from the sensor to the interface", prompt)
+        self.assertIn("Sludge Level/슬러지 레벨, the sludge height", prompt)
+        self.assertIn("explain the upper-left value as the measured sludge level/distance", prompt)
 
     def test_conflict_message(self):
         msg = build_product_conflict_message("ENV130", "ENV200", "한국어")

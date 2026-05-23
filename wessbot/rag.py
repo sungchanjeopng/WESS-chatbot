@@ -31,10 +31,12 @@ from .prompts import (
 IMAGE_ANALYSIS_INSTRUCTION = (
     "If the image is a WESS waveform/screen capture, inspect the visible waveform, threshold line, "
     "measurement bar, peaks, noise, and displayed values. For ENV120 waveform screens, interpret the "
-    "upper-left value as Empty and the measurement range; it is absolutely not the live measurement value. "
+    "upper-left value as measurement range and Empty; it is absolutely not the live measurement value. "
+    "Interpret the upper-right value as Threshold/문턱전압. "
     "Empty is a fixed site/configuration reference and does not change during normal waveform viewing "
-    "unless the Empty setting is intentionally changed. Interpret the lower display labels as "
-    "D = Distance/거리 and S = Sludge Level/슬러지 레벨. Do not confuse D with sludge level or S with distance. "
+    "unless the Empty setting is intentionally changed. If a lower-left or lower-right display label is D, "
+    "interpret it as Distance/거리: the distance from the sensor to the interface. If the label is S, "
+    "interpret it as Sludge Level/슬러지 레벨: the sludge height. Do not confuse D with sludge level or S with distance. "
     "Do not invent unreadable numbers; say when a value is not legible. Give practical field "
     "interpretation and next checks."
 )
