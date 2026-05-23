@@ -82,9 +82,13 @@ class ApiTests(unittest.TestCase):
         self.assertIn("absolutely not the live measurement value", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("does not change", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("unless the Empty setting is intentionally changed", IMAGE_ANALYSIS_INSTRUCTION)
-        self.assertIn("D, interpret it as Distance/거리: the distance from the sensor to the interface", IMAGE_ANALYSIS_INSTRUCTION)
-        self.assertIn("S, interpret it as Sludge Level/슬러지 레벨: the sludge height", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("lower-left and lower-right label rule is fixed", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("label is D, interpret it as Distance/거리", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("label is S, interpret it as Sludge Level/슬러지 레벨", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("Do not confuse D with sludge level or S with distance", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("glare, reflection, blur, or poor image quality", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("label cannot be determined from the image", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("never guess or change this rule", IMAGE_ANALYSIS_INSTRUCTION)
 
 
 if __name__ == "__main__":

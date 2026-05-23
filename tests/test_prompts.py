@@ -34,8 +34,12 @@ class PromptTests(unittest.TestCase):
         self.assertIn("upper-left value is measurement range plus Empty", prompt)
         self.assertIn("upper-right value is Threshold/문턱전압", prompt)
         self.assertIn("not the live measurement value", prompt)
+        self.assertIn("lower-left and lower-right label rule is fixed", prompt)
         self.assertIn("Distance/거리 from the sensor to the interface", prompt)
         self.assertIn("Sludge Level/슬러지 레벨, the sludge height", prompt)
+        self.assertIn("glare, reflection, blur, or poor image quality", prompt)
+        self.assertIn("label cannot be determined from the image", prompt)
+        self.assertIn("never guess", prompt)
         self.assertIn("explain the upper-left value as the measured sludge level/distance", prompt)
 
     def test_conflict_message(self):
