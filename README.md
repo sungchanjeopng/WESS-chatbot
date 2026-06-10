@@ -12,7 +12,6 @@ Streamlit 웹 UI와 Flask REST/SSE API를 함께 제공합니다.
 - `wessbot/rag.py`: Chroma 검색, 재정렬, OpenAI 답변 생성, 후속 질문 맥락 검색
 - `wessbot/ingest.py`: 문서 추출, chunking, ChromaDB 재생성
 - `tests/`: 제품 감지, 프롬프트, chunking, API shape, 후속 질문 검색 테스트
-- `.github/workflows/ci.yml`: push/PR마다 테스트 + 오프라인 평가 자동 실행
 
 ### 멀티턴 대화 검색
 

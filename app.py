@@ -320,33 +320,145 @@ def get_sample_questions(product: str, language: str) -> tuple[str, str, str]:
 
 start_api_server_if_enabled()
 
-st.set_page_config(page_title="WESS-AI", page_icon="🔧", layout="centered")
+st.set_page_config(page_title="WESS AI", page_icon="💬", layout="centered")
+
+PRODUCT_LABELS = {
+    "ENV200": "ENV200 농도계",
+    "ENV130": "ENV130 계면계",
+    "ENV120": "ENV120 계면계",
+}
+PRODUCT_TAGLINES = {
+    "ENV200": "초음파 슬러지 농도계 · 단채널",
+    "ENV130": "초음파 슬러지 계면계 · 2채널 (CH1 / CH2)",
+    "ENV120": "초음파 슬러지 계면계 · 단채널",
+}
+
 st.markdown(
     """
 <style>
-    .block-container { max-width: 920px; padding-top: 1rem; padding-bottom: 2rem; }
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+    html, body, .stApp, .stApp * {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+            'Segoe UI', 'Malgun Gothic', sans-serif !important;
+    }
+    .stApp { background: #ffffff; }
+    .block-container { max-width: 760px; padding-top: 2.0rem; padding-bottom: 2.5rem; }
     #MainMenu, footer, header { visibility: hidden; }
-    .small-note { color: #666; font-size: 0.86rem; }
+
+    /* ---- Brand header ---- */
+    .wess-brand {
+        font-size: 1.7rem; font-weight: 800; color: #191F28;
+        letter-spacing: -0.02em; line-height: 1.2;
+    }
+    .wess-brand span { color: #3182F6; }
+    .wess-sub { font-size: 0.86rem; font-weight: 500; color: #8B95A1; margin-top: 2px; }
+    .wess-tagline { color: #8B95A1; font-size: 0.82rem; font-weight: 500; margin: 4px 2px 6px; }
+
+    /* ---- Product pills ---- */
+    [data-testid="stBaseButton-pills"], [data-testid="stBaseButton-pillsActive"] {
+        border-radius: 999px !important;
+        font-weight: 600 !important;
+        font-size: 0.88rem !important;
+        padding: 0.4rem 1rem !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stBaseButton-pills"] { background: #F2F4F6 !important; color: #4E5968 !important; }
+    [data-testid="stBaseButton-pills"]:hover { background: #E5E8EB !important; color: #191F28 !important; }
+    [data-testid="stBaseButton-pillsActive"] { background: #3182F6 !important; color: #ffffff !important; }
+
+    /* ---- Sample question chips ---- */
+    .stButton > button {
+        border-radius: 14px;
+        border: 1px solid #F2F4F6;
+        background: #F9FAFB;
+        color: #4E5968;
+        font-size: 0.84rem;
+        font-weight: 500;
+        padding: 0.6rem 0.8rem;
+        box-shadow: none;
+        transition: background 0.15s ease;
+    }
+    .stButton > button:hover {
+        background: #F2F4F6; border-color: #E5E8EB; color: #191F28;
+    }
+
+    /* ---- New chat button ---- */
+    .st-key-new_chat button {
+        background: #ffffff; border: 1px solid #E5E8EB;
+        color: #3182F6; font-weight: 600; border-radius: 12px;
+    }
+    .st-key-new_chat button:hover { background: #F2F7FF; border-color: #3182F6; color: #3182F6; }
+
+    /* ---- Language select ---- */
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        border-radius: 12px; border-color: #E5E8EB; background: #F9FAFB;
+        font-size: 0.88rem;
+    }
+
+    /* ---- Chat bubbles ---- */
+    [data-testid="stChatMessage"] {
+        background: transparent; padding: 0.15rem 0; gap: 0.4rem;
+        display: flex; justify-content: flex-start;
+    }
+    [data-testid^="stChatMessageAvatar"] { display: none; }
+    [data-testid="stChatMessageContent"] {
+        background: #F2F4F6; color: #191F28;
+        border-radius: 4px 18px 18px 18px;
+        padding: 0.8rem 1.05rem;
+        width: fit-content;
+        max-width: 88%;
+        flex-grow: 0 !important;
+        margin-left: 0 !important;
+        margin-right: auto !important;
+    }
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+        justify-content: flex-end;
+    }
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"] {
+        background: #3182F6;
+        border-radius: 18px 4px 18px 18px;
+        margin-left: auto !important;
+        margin-right: 0 !important;
+    }
+    [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) [data-testid="stChatMessageContent"] :is(p, li, span, div) {
+        color: #ffffff !important;
+    }
+
+    /* ---- Chat input ---- */
+    [data-testid="stChatInput"] {
+        border-radius: 20px;
+        border: 1.5px solid #E5E8EB;
+        background: #ffffff;
+    }
+    [data-testid="stChatInput"]:focus-within {
+        border-color: #3182F6;
+        box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.12);
+    }
     div[data-testid="stChatInput"] div[data-testid="stChatInputFileUploadButton"] {
         margin-right: 0.35rem;
         padding-right: 0.35rem;
-        border-right: 1px solid rgba(49, 51, 63, 0.12);
+        border-right: 1px solid #F2F4F6;
         flex-shrink: 0;
     }
     div[data-testid="stChatInput"] div[data-testid="stChatInputFileUploadButton"] button {
-        width: 2.25rem;
-        height: 2.25rem;
-        border: 1px solid rgba(49, 51, 63, 0.18);
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.95);
+        width: 2.25rem; height: 2.25rem;
+        border: 1px solid #E5E8EB; border-radius: 999px; background: #F9FAFB;
     }
     div[data-testid="stChatInput"] div[data-testid="stChatInputFileUploadButton"] button:hover {
-        background: rgba(49, 51, 63, 0.06);
-        border-color: rgba(49, 51, 63, 0.28);
+        background: #F2F4F6; border-color: #3182F6;
     }
+
+    /* ---- Sources expander ---- */
+    [data-testid="stExpander"] details {
+        border: 1px solid #F2F4F6; border-radius: 14px; background: #F9FAFB;
+    }
+    [data-testid="stExpander"] summary { color: #8B95A1; font-size: 0.85rem; }
+
     @media (max-width: 768px) {
-        .stSelectbox > div { font-size: 14px; }
-        .stChatMessage { padding: 0.5rem; }
+        .block-container { padding-top: 1.2rem; }
+        [data-testid="stChatMessageContent"] { max-width: 94%; }
     }
 </style>
 """,
@@ -362,16 +474,22 @@ except Exception as exc:
     st.error(f"초기화 실패: {exc}")
     st.stop()
 
-product_options = ["ENV200", "ENV130", "ENV120"]
-
-col1, col2, col3 = st.columns([2.3, 2, 1.2])
-with col1:
-    product = st.selectbox("Product / 제품", product_options, index=0)
-with col2:
-    lang = st.selectbox("Language / 언어", list(LANGUAGES.keys()), index=list(LANGUAGES.keys()).index("한국어"))
-with col3:
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button(LANGUAGES[lang]["new_chat"], use_container_width=True):
+col_brand, col_lang, col_new = st.columns([3.0, 1.7, 1.1], vertical_alignment="center")
+with col_brand:
+    st.markdown(
+        '<div class="wess-brand">WESS <span>AI</span>'
+        '<div class="wess-sub">제품 Q&amp;A 어시스턴트</div></div>',
+        unsafe_allow_html=True,
+    )
+with col_lang:
+    lang = st.selectbox(
+        "Language / 언어",
+        list(LANGUAGES.keys()),
+        index=list(LANGUAGES.keys()).index("한국어"),
+        label_visibility="collapsed",
+    )
+with col_new:
+    if st.button(LANGUAGES[lang]["new_chat"], use_container_width=True, key="new_chat"):
         st.session_state.messages = [{"role": "assistant", "content": LANGUAGES[lang]["greeting"]}]
         st.session_state.last_sources = None
         st.rerun()
@@ -379,6 +497,20 @@ with col3:
 lang = normalize_language(lang)
 lang_cfg = LANGUAGES[lang]
 model_name = MODEL_OPTIONS["정밀 답변"]
+
+label_to_product = {v: k for k, v in PRODUCT_LABELS.items()}
+picked_label = st.pills(
+    "Product / 제품",
+    list(PRODUCT_LABELS.values()),
+    default=PRODUCT_LABELS["ENV200"],
+    label_visibility="collapsed",
+    key="product_pick",
+)
+if picked_label is None:
+    picked_label = st.session_state.get("last_product_label", PRODUCT_LABELS["ENV200"])
+st.session_state.last_product_label = picked_label
+product = label_to_product[picked_label]
+st.markdown(f'<div class="wess-tagline">{PRODUCT_TAGLINES[product]}</div>', unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": lang_cfg["greeting"]}]
