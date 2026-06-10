@@ -28,6 +28,11 @@ from .prompts import (
 )
 
 
+# Short questions without any product/term signal are usually follow-ups
+# ("그건 어떻게 설정해?") and embed poorly on their own.
+FOLLOWUP_MAX_CHARS = 40
+FOLLOWUP_HISTORY_TURNS = 2
+
 IMAGE_ANALYSIS_INSTRUCTION = (
     "If the image is a WESS waveform/screen capture, inspect the visible waveform, threshold line, "
     "measurement bar, peaks, noise, and displayed values. For ENV120 waveform screens, interpret the "
@@ -160,6 +165,31 @@ class WessRagEngine:
         return response.data[0].embedding
 
     @staticmethod
+    def is_followup_question(question: str) -> bool:
+        """True when the question is short and carries no product/term signal of its own."""
+        q = (question or "").strip()
+        if not q or len(q) > FOLLOWUP_MAX_CHARS:
+            return False
+        _, _, scores = detect_product(q, "auto")
+        return max(scores.values()) <= 0
+
+    @classmethod
+    def build_search_query(cls, question: str, history: Optional[list[dict[str, str]]]) -> str:
+        """Augment follow-up questions with recent user turns so retrieval keeps the topic."""
+        if not history or not cls.is_followup_question(question):
+            return question
+        prev_user = [
+            (m.get("content") or "").strip()
+            for m in history
+            if m.get("role") == "user" and (m.get("content") or "").strip()
+        ]
+        prev_user = [m for m in prev_user if m != question]
+        if not prev_user:
+            return question
+        context = "\n".join(prev_user[-FOLLOWUP_HISTORY_TURNS:])
+        return f"{context}\n{question}"
+
+    @staticmethod
     def _keyword_terms(query: str) -> set[str]:
         tokens = set(re.findall(r"[A-Za-z0-9가-힣%/.-]{2,}", query.lower()))
         important = {
@@ -239,10 +269,16 @@ class WessRagEngine:
         *,
         product: str = "auto",
         n_results: int = DEFAULT_N_RESULTS,
+        history: Optional[list[dict[str, str]]] = None,
     ) -> RetrievalResult:
         selected = normalize_product(product, default="auto")
         detected, conflict, scores = detect_product(question, selected)
-        query_embedding = self.embed(question)
+        search_query = self.build_search_query(question, history)
+        if selected == "auto" and search_query != question and scores.get(detected, 0) <= 0:
+            # Follow-up without its own product signal: inherit the product from recent turns.
+            detected, _, scores = detect_product(search_query, "auto")
+            conflict = False
+        query_embedding = self.embed(search_query)
 
         if selected == "auto":
             target_products = list(PRODUCTS.keys())
@@ -252,7 +288,7 @@ class WessRagEngine:
         chunks: list[RetrievedChunk] = []
         per_product_n = max(4, n_results if len(target_products) == 1 else max(6, n_results // len(target_products)))
         for key in target_products:
-            chunks.extend(self._query_collection(key, question, query_embedding, per_product_n))
+            chunks.extend(self._query_collection(key, search_query, query_embedding, per_product_n))
 
         ranked = self._dedupe_chunks(chunks)[:n_results]
         low_evidence = not ranked or (ranked[0].combined_score < 0.28 and ranked[0].keyword_score == 0)
@@ -316,7 +352,7 @@ class WessRagEngine:
         model: str = DEFAULT_CHAT_MODEL,
         temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
-        retrieval = self.retrieve(question, product=product)
+        retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         response = self._client().chat.completions.create(
             **self._chat_kwargs(model, messages, temperature)
@@ -335,7 +371,7 @@ class WessRagEngine:
         temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
         """Answer one question with attached waveform/screen images."""
-        retrieval = self.retrieve(question, product=product)
+        retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         text = messages[-1]["content"]
         messages[-1]["content"] = [
@@ -364,7 +400,7 @@ class WessRagEngine:
         model: str = DEFAULT_CHAT_MODEL,
         temperature: float = 1.0,
     ):
-        retrieval = self.retrieve(question, product=product)
+        retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         stream = self._client().chat.completions.create(
             **self._chat_kwargs(model, messages, temperature, stream=True)

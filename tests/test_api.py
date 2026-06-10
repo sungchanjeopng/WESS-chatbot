@@ -63,6 +63,16 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.get_json()["answer"], "이미지 테스트 답변")
 
+    def test_question_length_limit(self):
+        with patch.object(api, "init", return_value=FakeEngine()):
+            res = self.client.post("/api/chat", json={"question": "a" * (api.MAX_QUESTION_CHARS + 1)})
+        self.assertEqual(res.status_code, 400)
+
+    def test_safe_model_rejects_unknown_models(self):
+        self.assertEqual(api._safe_model("gpt-4o-expensive-custom"), api.DEFAULT_CHAT_MODEL)
+        self.assertEqual(api._safe_model(None), api.DEFAULT_CHAT_MODEL)
+        self.assertEqual(api._safe_model(api.DEFAULT_CHAT_MODEL), api.DEFAULT_CHAT_MODEL)
+
     def test_gpt55_chat_kwargs_use_temperature_one(self):
         kwargs = WessRagEngine._chat_kwargs("gpt-5.5", [{"role": "user", "content": "hi"}], 0.8)
         self.assertEqual(kwargs["temperature"], 1)

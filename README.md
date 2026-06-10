@@ -9,9 +9,16 @@ Streamlit 웹 UI와 Flask REST/SSE API를 함께 제공합니다.
 - `api.py`: Android/iOS/외부 연동 REST API 전용
 - `wessbot/products.py`: 제품 정의, 별칭, 제품 자동 감지
 - `wessbot/prompts.py`: 제품별 답변 규칙과 프롬프트
-- `wessbot/rag.py`: Chroma 검색, 재정렬, OpenAI 답변 생성
+- `wessbot/rag.py`: Chroma 검색, 재정렬, OpenAI 답변 생성, 후속 질문 맥락 검색
 - `wessbot/ingest.py`: 문서 추출, chunking, ChromaDB 재생성
-- `tests/`: 제품 감지, 프롬프트, chunking, API shape 테스트
+- `tests/`: 제품 감지, 프롬프트, chunking, API shape, 후속 질문 검색 테스트
+- `.github/workflows/ci.yml`: push/PR마다 테스트 + 오프라인 평가 자동 실행
+
+### 멀티턴 대화 검색
+
+짧고 제품 신호가 없는 후속 질문("그건 언제 조정해?")은 최근 사용자 질문을 검색 쿼리에
+합쳐서 임베딩 검색과 제품 자동 감지에 사용합니다. 덕분에 이어지는 질문에서도 직전에
+이야기하던 제품(예: ENV120)의 문서를 계속 참조합니다.
 
 ## 실행
 
@@ -147,5 +154,11 @@ ChromaDB는 단순 벡터만이 아니라 `chroma:document` 형태의 원문 chu
 - `CHROMA_DIR`: ChromaDB 경로
 - `API_PORT`: API 포트
 - `WESS_API_KEY`: 설정 시 API 호출에 `X-API-Key` 또는 `Authorization: Bearer` 필요
+
+### API 보호 동작
+
+- API 키 비교는 timing-safe(`hmac.compare_digest`)로 수행
+- `model` 파라미터는 `WESS_CHAT_MODEL`/`WESS_FAST_MODEL`에 설정된 모델만 허용하고 그 외 값은 기본 모델로 대체 (비용 악용 방지)
+- 질문은 최대 4000자까지 허용
 - `CORS_ALLOW_ORIGIN`: CORS 허용 origin
 - `START_EMBEDDED_API`: `1`이면 Streamlit 프로세스 안에서 Flask API도 같이 실행

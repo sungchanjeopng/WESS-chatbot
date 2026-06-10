@@ -8,5 +8,9 @@
   {"question": "ENV120 릴레이 설정 설명해줘", "expected_product": "ENV120", "category": "relay"},
   {"question": "AGC와 Profile 기능 설명해줘", "expected_product": "ENV200", "category": "feature"},
   {"question": "문턱전압과 ASF 차이가 뭐야?", "expected_product": "ENV130", "category": "concept"},
-  {"question": "센서 세정장치 관련 점검 방법", "expected_product": "ENV120", "category": "maintenance"}
+  {"question": "센서 세정장치 관련 점검 방법", "expected_product": "ENV120", "category": "maintenance"},
+  {"question": "Clamp-on 센서 설치 시 주의사항", "expected_product": "ENV200", "category": "installation"},
+  {"question": "Light Heavy 모드 차이가 뭐야?", "expected_product": "ENV130", "category": "concept"},
+  {"question": "단채널 계면계 설정 방법", "expected_product": "ENV120", "category": "parameter"},
+  {"question": "계면계 문턱전압 조정 방법", "expected_product": "ENV130", "category": "parameter"}
 ]

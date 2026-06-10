@@ -146,10 +146,13 @@ def normalize_product(value: Optional[str], default: str = "ENV200") -> str:
 
 def _alias_score(query_l: str, aliases: Iterable[str]) -> int:
     score = 0
+    seen: set[str] = set()
     for alias in aliases:
         a = alias.lower()
-        if not a or len(a) < 2:
+        # Dedupe: korean_name often repeats inside aliases and must not count twice.
+        if not a or len(a) < 2 or a in seen:
             continue
+        seen.add(a)
         if a in query_l:
             score += 3 if a.startswith("env") else 1
     return score

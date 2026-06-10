@@ -1,6 +1,7 @@
 """WESS chatbot REST API for mobile apps and external clients."""
 from __future__ import annotations
 
+import hmac
 import json
 import os
 from typing import Any
@@ -10,9 +11,12 @@ from flask import Flask, Response, jsonify, request, stream_with_context
 
 load_dotenv()
 
-from wessbot.config import DEFAULT_CHAT_MODEL, normalize_language
+from wessbot.config import DEFAULT_CHAT_MODEL, FAST_CHAT_MODEL, normalize_language
 from wessbot.products import PRODUCTS, normalize_product
 from wessbot.rag import WessRagEngine
+
+MAX_QUESTION_CHARS = 4000
+ALLOWED_MODELS = {DEFAULT_CHAT_MODEL, FAST_CHAT_MODEL}
 
 app = Flask(__name__)
 engine: WessRagEngine | None = None
@@ -44,9 +48,23 @@ def _check_api_key() -> tuple[bool, Any]:
     if not expected:
         return True, None
     supplied = request.headers.get("X-API-Key") or request.headers.get("Authorization", "").replace("Bearer ", "")
-    if supplied == expected:
+    if hmac.compare_digest(supplied or "", expected):
         return True, None
     return False, jsonify({"error": "Unauthorized"})
+
+
+def _safe_model(value: Any) -> str:
+    """Only allow configured models so clients cannot select arbitrary (costly) models."""
+    model = str(value or "").strip()
+    return model if model in ALLOWED_MODELS else DEFAULT_CHAT_MODEL
+
+
+def _validate_question(question: str) -> tuple[Any, int] | None:
+    if not question:
+        return jsonify({"error": "Empty question"}), 400
+    if len(question) > MAX_QUESTION_CHARS:
+        return jsonify({"error": f"Question too long (max {MAX_QUESTION_CHARS} chars)"}), 400
+    return None
 
 
 def _json_body() -> dict[str, Any] | tuple[Any, int]:
@@ -129,14 +147,15 @@ def chat():
         return data
 
     question = str(data.get("question", "")).strip()
-    if not question:
-        return jsonify({"error": "Empty question"}), 400
+    invalid = _validate_question(question)
+    if invalid:
+        return invalid
 
     product = normalize_product(data.get("product", "auto"), default="auto")
     language = normalize_language(data.get("language") or data.get("lang") or "ko")
     history = _safe_history(data.get("history", []))
     image_data_urls = _safe_image_data_urls(data.get("image_data_urls", []))
-    model = str(data.get("model") or DEFAULT_CHAT_MODEL)
+    model = _safe_model(data.get("model"))
 
     try:
         e = init()
@@ -182,13 +201,14 @@ def chat_stream():
         return data
 
     question = str(data.get("question", "")).strip()
-    if not question:
-        return jsonify({"error": "Empty question"}), 400
+    invalid = _validate_question(question)
+    if invalid:
+        return invalid
 
     product = normalize_product(data.get("product", "auto"), default="auto")
     language = normalize_language(data.get("language") or data.get("lang") or "ko")
     history = _safe_history(data.get("history", []))
-    model = str(data.get("model") or DEFAULT_CHAT_MODEL)
+    model = _safe_model(data.get("model"))
 
     try:
         e = init()
@@ -240,8 +260,9 @@ def retrieve_debug():
     if isinstance(data, tuple):
         return data
     question = str(data.get("question", "")).strip()
-    if not question:
-        return jsonify({"error": "Empty question"}), 400
+    invalid = _validate_question(question)
+    if invalid:
+        return invalid
     product = normalize_product(data.get("product", "auto"), default="auto")
     try:
         e = init()

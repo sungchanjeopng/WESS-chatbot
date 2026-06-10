@@ -14,6 +14,20 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from wessbot.products import detect_product  # noqa: E402
+from wessbot.rag import WessRagEngine  # noqa: E402
+
+FOLLOWUP_CASES = [
+    {
+        "history": [{"role": "user", "content": "ENV120 수신감도 조정 방법 알려줘"}],
+        "question": "그건 언제 조정해?",
+        "must_contain": "ENV120",
+    },
+    {
+        "history": [{"role": "user", "content": "ENV130 Threshold 설정 방법"}],
+        "question": "좀 더 자세히 알려줘",
+        "must_contain": "Threshold",
+    },
+]
 
 
 def load_cases(path: Path) -> list[dict]:
@@ -31,6 +45,17 @@ def evaluate_product_detection(cases: list[dict]) -> tuple[int, list[str]]:
     return len(cases) - len(failures), failures
 
 
+def evaluate_followup_queries(cases: list[dict]) -> tuple[int, list[str]]:
+    failures: list[str] = []
+    for case in cases:
+        query = WessRagEngine.build_search_query(case["question"], case["history"])
+        if case["must_contain"] not in query:
+            failures.append(
+                f"FAIL followup: {case['question']!r} expected query to contain {case['must_contain']!r}, got {query!r}"
+            )
+    return len(cases) - len(failures), failures
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cases", default=str(ROOT / "eval" / "eval_cases.json"))
@@ -39,6 +64,9 @@ def main(argv: list[str] | None = None) -> int:
     cases = load_cases(Path(args.cases))
     passed, failures = evaluate_product_detection(cases)
     print(f"product-detection: {passed}/{len(cases)} passed")
+    followup_passed, followup_failures = evaluate_followup_queries(FOLLOWUP_CASES)
+    print(f"followup-query: {followup_passed}/{len(FOLLOWUP_CASES)} passed")
+    failures += followup_failures
     for failure in failures:
         print(failure)
     return 1 if failures else 0

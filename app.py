@@ -417,6 +417,9 @@ if st.session_state.get("queued_prompt"):
 
 if prompt:
     image_note = f"\n\n[첨부 이미지: {len(image_files)}장]" if image_files else ""
+    # The current question is sent separately by the engine; history must exclude it
+    # or the model receives the same question twice.
+    chat_history = list(st.session_state.messages)
     st.session_state.messages.append({"role": "user", "content": prompt + image_note})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -433,7 +436,7 @@ if prompt:
                         image_data_urls,
                         product=product,
                         language=lang,
-                        history=st.session_state.messages,
+                        history=chat_history,
                         model=model_name,
                     )
                     st.markdown(answer)
@@ -442,7 +445,7 @@ if prompt:
                         prompt,
                         product=product,
                         language=lang,
-                        history=st.session_state.messages,
+                        history=chat_history,
                         model=model_name,
                     )
                     answer = st.write_stream(stream_text(stream))
