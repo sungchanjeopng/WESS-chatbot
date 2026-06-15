@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest.mock import patch
 
@@ -6,6 +7,7 @@ from wessbot.codex_oauth import (
     DEFAULT_CODEX_FALLBACK_MODELS,
     CodexOAuthError,
     CodexOAuthChatClient,
+    load_codex_access_token,
     messages_to_codex_payload,
 )
 
@@ -55,6 +57,15 @@ class CodexOAuthTests(unittest.TestCase):
             ],
         ):
             self.assertEqual(client.complete_chat(model="gpt-5.5", messages=[{"role": "user", "content": "x"}]), "OK")
+
+    def test_load_token_prefers_direct_env_secret(self):
+        with patch.dict(os.environ, {"WESS_CODEX_ACCESS_TOKEN": "direct-token"}, clear=False):
+            self.assertEqual(load_codex_access_token("/does/not/exist"), "direct-token")
+
+    def test_load_token_accepts_auth_json_env_secret(self):
+        auth_json = '{"providers":{"openai-codex":{"tokens":{"access_token":"json-token"}}}}'
+        with patch.dict(os.environ, {"WESS_CODEX_ACCESS_TOKEN": "", "WESS_CODEX_AUTH_JSON": auth_json}, clear=False):
+            self.assertEqual(load_codex_access_token("/does/not/exist"), "json-token")
 
 
 if __name__ == "__main__":

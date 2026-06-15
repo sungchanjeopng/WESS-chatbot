@@ -38,24 +38,7 @@ def _dig(data: dict[str, Any], *keys: str) -> Any:
     return cur
 
 
-def load_codex_access_token(auth_file: str | os.PathLike[str] | None = None) -> str:
-    """Load an access token from Hermes' OpenAI Codex OAuth auth file.
-
-    Supported locations match current Hermes auth.json shapes:
-    - providers.openai-codex.tokens.access_token
-    - credential_pool.openai-codex[0].access_token
-    """
-    path = Path(auth_file).expanduser() if auth_file else _default_auth_file()
-    if not path.exists():
-        raise CodexOAuthError(
-            f"Codex OAuth auth file not found: {path}. Run `hermes auth add openai-codex` on this host first."
-        )
-
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except Exception as exc:  # pragma: no cover - exact JSON errors vary
-        raise CodexOAuthError(f"Failed to read Codex OAuth auth file {path}: {exc}") from exc
-
+def _extract_codex_access_token(data: dict[str, Any]) -> str | None:
     token = _dig(data, "providers", "openai-codex", "tokens", "access_token")
     if not token:
         pool = _dig(data, "credential_pool", "openai-codex")
@@ -64,13 +47,49 @@ def load_codex_access_token(auth_file: str | os.PathLike[str] | None = None) -> 
                 if isinstance(item, dict) and item.get("access_token"):
                     token = item["access_token"]
                     break
+    return token.strip() if isinstance(token, str) and token.strip() else None
 
-    if not isinstance(token, str) or not token.strip():
+
+def load_codex_access_token(auth_file: str | os.PathLike[str] | None = None) -> str:
+    """Load a Codex OAuth access token.
+
+    Priority:
+    1. WESS_CODEX_ACCESS_TOKEN secret (Streamlit/self-hosted env)
+    2. WESS_CODEX_AUTH_JSON secret containing Hermes auth.json content
+    3. Hermes auth file, usually ~/.hermes/auth.json
+    """
+    direct_token = os.getenv("WESS_CODEX_ACCESS_TOKEN", "").strip()
+    if direct_token:
+        return direct_token
+
+    auth_json = os.getenv("WESS_CODEX_AUTH_JSON", "").strip()
+    if auth_json:
+        try:
+            token = _extract_codex_access_token(json.loads(auth_json))
+        except Exception as exc:  # pragma: no cover - exact JSON errors vary
+            raise CodexOAuthError(f"Failed to parse WESS_CODEX_AUTH_JSON: {exc}") from exc
+        if token:
+            return token
+        raise CodexOAuthError("OpenAI Codex OAuth access token not found in WESS_CODEX_AUTH_JSON.")
+
+    path = Path(auth_file).expanduser() if auth_file else _default_auth_file()
+    if not path.exists():
+        raise CodexOAuthError(
+            f"Codex OAuth auth file not found: {path}. Run `hermes auth add openai-codex` on this host first, "
+            "or set WESS_CODEX_ACCESS_TOKEN / WESS_CODEX_AUTH_JSON in the deployment secrets."
+        )
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # pragma: no cover - exact JSON errors vary
+        raise CodexOAuthError(f"Failed to read Codex OAuth auth file {path}: {exc}") from exc
+
+    token = _extract_codex_access_token(data)
+    if not token:
         raise CodexOAuthError(
             f"OpenAI Codex OAuth access token not found in {path}. Re-login with `hermes auth add openai-codex`."
         )
-    return token.strip()
-
+    return token
 
 def _text_from_content(content: Any) -> str:
     if isinstance(content, str):

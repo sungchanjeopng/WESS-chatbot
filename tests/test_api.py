@@ -94,10 +94,23 @@ class ApiTests(unittest.TestCase):
         engine = WessRagEngine.__new__(WessRagEngine)
         engine.codex_chat_client = FakeCodexLimitClient()
         engine.openai_client = object()
+        engine.last_chat_backend = "not_used_yet"
         with patch.object(engine, "_complete_openai_chat", return_value="api fallback") as mocked:
             answer = engine._complete_chat("gpt-5.5", [{"role": "user", "content": "hi"}], 1.0)
         self.assertEqual(answer, "api fallback")
+        self.assertEqual(engine.last_chat_backend, "openai-api-fallback")
         mocked.assert_called_once()
+
+    def test_backend_status_question_answers_without_model_call(self):
+        engine = WessRagEngine.__new__(WessRagEngine)
+        engine.codex_chat_client = object()
+        engine.openai_client = object()
+        engine.chat_provider = "codex-oauth"
+        engine.last_chat_backend = "codex-oauth"
+        answer, retrieval = engine.answer_once("지금 api로 돌아가고 있어 oauth로 돌아가고 있어?", product="ENV200")
+        self.assertIn("Codex OAuth 우선", answer)
+        self.assertIn("최근 실제 답변 생성 경로: codex-oauth", answer)
+        self.assertEqual(retrieval.chunks, [])
 
     def test_default_answer_temperature_is_one(self):
         self.assertEqual(WessRagEngine.answer_once.__kwdefaults__["temperature"], 1.0)

@@ -10,7 +10,7 @@ from typing import Any, Iterable, Optional
 import chromadb
 from openai import OpenAI
 
-from .codex_oauth import CodexOAuthChatClient, CodexOAuthError, is_usage_limit_error
+from .codex_oauth import CodexOAuthChatClient, CodexOAuthError, _fake_chat_stream_chunk, is_usage_limit_error
 from .config import (
     CHROMA_DIR,
     DEFAULT_CHAT_MODEL,
@@ -122,6 +122,7 @@ class WessRagEngine:
         self.openai_client = openai_client or (OpenAI() if os.getenv("OPENAI_API_KEY") else None)
         self.chat_provider = DEFAULT_CHAT_PROVIDER
         self.codex_chat_client = CodexOAuthChatClient() if self.chat_provider in {"codex-oauth", "openai-codex", "codex"} else None
+        self.last_chat_backend = "not_used_yet"
         self.embedding_model = embedding_model
         self.chroma_client = chromadb.PersistentClient(path=self.chroma_dir)
         self.collections = self._load_collections()
@@ -169,6 +170,45 @@ class WessRagEngine:
     def embed(self, text: str) -> list[float]:
         response = self._client().embeddings.create(model=self.embedding_model, input=text)
         return response.data[0].embedding
+
+    @staticmethod
+    def is_backend_status_question(question: str) -> bool:
+        q = (question or "").strip().lower()
+        if not q:
+            return False
+        backend_terms = ("api", "oauth", "codex", "코덱스", "오어스", "오어쓰", "인증", "백엔드", "모델")
+        status_terms = ("돌아", "구동", "쓰고", "사용", "현재", "지금", "확인", "뭐로", "무슨", "경로")
+        return any(term in q for term in backend_terms) and any(term in q for term in status_terms)
+
+    def _status_retrieval(self) -> RetrievalResult:
+        return RetrievalResult(
+            product="ENV200",
+            selected_product="auto",
+            detected_product="ENV200",
+            product_conflict=False,
+            chunks=[],
+            low_evidence=False,
+            score_by_product={},
+        )
+
+    def backend_status_answer(self) -> str:
+        codex_enabled = self.codex_chat_client is not None
+        openai_ready = self.openai_client is not None
+        if codex_enabled:
+            primary = "Codex OAuth 우선"
+            fallback = "Codex gpt-5.5 실패 시 gpt-5.4를 먼저 시도하고, 그래도 usage limit이면 OPENAI_API_KEY 경로로 fallback"
+        else:
+            primary = "OPENAI_API_KEY 기반 OpenAI API"
+            fallback = "Codex OAuth는 현재 설정되어 있지 않음"
+        return (
+            f"현재 답변 생성 경로: {primary}\n"
+            f"설정값 WESS_CHAT_PROVIDER: {self.chat_provider}\n"
+            f"Codex OAuth 준비: {'yes' if codex_enabled else 'no'}\n"
+            f"OpenAI API fallback 준비: {'yes' if openai_ready else 'no'}\n"
+            f"최근 실제 답변 생성 경로: {self.last_chat_backend}\n"
+            f"fallback 정책: {fallback}\n"
+            "참고: 문서 검색용 embedding은 현재 OPENAI_API_KEY를 사용합니다."
+        )
 
     @staticmethod
     def is_followup_question(question: str) -> bool:
@@ -365,26 +405,43 @@ class WessRagEngine:
     def _complete_chat(self, model: str, messages: list[dict[str, Any]], temperature: float) -> str:
         if self._use_codex_oauth_chat():
             try:
-                return self.codex_chat_client.complete_chat(model=model, messages=messages)  # type: ignore[union-attr]
+                answer = self.codex_chat_client.complete_chat(model=model, messages=messages)  # type: ignore[union-attr]
+                self.last_chat_backend = "codex-oauth"
+                return answer
             except CodexOAuthError as exc:
                 if self.openai_client is not None and is_usage_limit_error(exc):
-                    return self._complete_openai_chat(model, messages, temperature)
+                    answer = self._complete_openai_chat(model, messages, temperature)
+                    self.last_chat_backend = "openai-api-fallback"
+                    return answer
                 raise
-        return self._complete_openai_chat(model, messages, temperature)
+        answer = self._complete_openai_chat(model, messages, temperature)
+        self.last_chat_backend = "openai-api"
+        return answer
 
     def _stream_codex_then_openai_chat(self, model: str, messages: list[dict[str, Any]], temperature: float):
         try:
-            yield from self.codex_chat_client.stream_chat(model=model, messages=messages)  # type: ignore[union-attr]
+            yielded = False
+            for chunk in self.codex_chat_client.stream_chat(model=model, messages=messages):  # type: ignore[union-attr]
+                yielded = True
+                self.last_chat_backend = "codex-oauth"
+                yield chunk
+            if yielded:
+                self.last_chat_backend = "codex-oauth"
         except CodexOAuthError as exc:
             if self.openai_client is not None and is_usage_limit_error(exc):
+                self.last_chat_backend = "openai-api-fallback"
                 yield from self._stream_openai_chat(model, messages, temperature)
                 return
             raise
 
+    def _stream_openai_chat_with_status(self, model: str, messages: list[dict[str, Any]], temperature: float):
+        self.last_chat_backend = "openai-api"
+        yield from self._stream_openai_chat(model, messages, temperature)
+
     def _stream_chat(self, model: str, messages: list[dict[str, Any]], temperature: float):
         if self._use_codex_oauth_chat():
             return self._stream_codex_then_openai_chat(model, messages, temperature)
-        return self._stream_openai_chat(model, messages, temperature)
+        return self._stream_openai_chat_with_status(model, messages, temperature)
 
     def answer_once(
         self,
@@ -396,6 +453,8 @@ class WessRagEngine:
         model: str = DEFAULT_CHAT_MODEL,
         temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
+        if self.is_backend_status_question(question):
+            return self.backend_status_answer(), self._status_retrieval()
         retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         return self._complete_chat(model, messages, temperature), retrieval
@@ -412,6 +471,8 @@ class WessRagEngine:
         temperature: float = 1.0,
     ) -> tuple[str, RetrievalResult]:
         """Answer one question with attached waveform/screen images."""
+        if self.is_backend_status_question(question):
+            return self.backend_status_answer(), self._status_retrieval()
         retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         text = messages[-1]["content"]
@@ -438,6 +499,9 @@ class WessRagEngine:
         model: str = DEFAULT_CHAT_MODEL,
         temperature: float = 1.0,
     ):
+        if self.is_backend_status_question(question):
+            answer = self.backend_status_answer()
+            return (chunk for chunk in [_fake_chat_stream_chunk(answer)]), self._status_retrieval()
         retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
         stream = self._stream_chat(model, messages, temperature)

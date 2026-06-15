@@ -149,6 +149,8 @@ ChromaDB는 단순 벡터만이 아니라 `chroma:document` 형태의 원문 chu
 - `OPENAI_API_KEY`: 필수. RAG 검색용 query embedding 생성에 사용됩니다. `WESS_CHAT_PROVIDER=codex-oauth`로 답변 생성을 Codex OAuth로 돌려도 현재 구조에서는 embedding 때문에 필요합니다.
 - `WESS_CHAT_PROVIDER`: 기본 `openai`. 실험값 `codex-oauth`를 쓰면 답변 생성만 Hermes OpenAI Codex OAuth 토큰(`~/.hermes/auth.json`)으로 호출합니다.
 - `WESS_CODEX_AUTH_FILE`: `codex-oauth` 사용 시 Hermes auth 파일 경로. 기본 `~/.hermes/auth.json`.
+- `WESS_CODEX_ACCESS_TOKEN`: Streamlit Cloud처럼 파일을 둘 수 없는 배포에서 Codex OAuth access token을 직접 넣는 실험 옵션입니다. 토큰 만료/보안 리스크가 있으므로 장기 운영은 자체 Hermes 서버 권장.
+- `WESS_CODEX_AUTH_JSON`: `WESS_CODEX_ACCESS_TOKEN` 대신 Hermes `auth.json` 내용을 secret 문자열로 넣는 실험 옵션입니다. 토큰 값은 답변에 노출하지 않습니다.
 - `WESS_CODEX_BASE_URL`: `codex-oauth` 사용 시 Codex backend URL. 기본 `https://chatgpt.com/backend-api/codex`.
 - `WESS_CODEX_REASONING_EFFORT`: `codex-oauth` 사용 시 reasoning effort. 기본 `xhigh`.
 - `WESS_CODEX_FALLBACK_MODELS`: `codex-oauth` 사용 중 `gpt-5.5`가 429/usage limit에 걸리면 먼저 시도할 Codex fallback 모델 목록. 기본 `gpt-5.4`. Codex fallback도 실패하고 `OPENAI_API_KEY`가 있으면 마지막으로 OpenAI API key 경로를 사용합니다.

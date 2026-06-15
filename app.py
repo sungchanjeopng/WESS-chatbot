@@ -18,6 +18,8 @@ def _apply_streamlit_cloud_secrets() -> None:
         "OPENAI_API_KEY",
         "WESS_CHAT_PROVIDER",
         "WESS_CODEX_AUTH_FILE",
+        "WESS_CODEX_AUTH_JSON",
+        "WESS_CODEX_ACCESS_TOKEN",
         "WESS_CODEX_BASE_URL",
         "WESS_CODEX_REASONING_EFFORT",
         "WESS_CODEX_FALLBACK_MODELS",
