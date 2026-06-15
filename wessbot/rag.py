@@ -10,9 +10,11 @@ from typing import Any, Iterable, Optional
 import chromadb
 from openai import OpenAI
 
+from .codex_oauth import CodexOAuthChatClient, CodexOAuthError, is_usage_limit_error
 from .config import (
     CHROMA_DIR,
     DEFAULT_CHAT_MODEL,
+    DEFAULT_CHAT_PROVIDER,
     DEFAULT_EMBEDDING_MODEL,
     DEFAULT_N_RESULTS,
     MAX_CONTEXT_CHARS,
@@ -118,6 +120,8 @@ class WessRagEngine:
     ) -> None:
         self.chroma_dir = str(chroma_dir)
         self.openai_client = openai_client or (OpenAI() if os.getenv("OPENAI_API_KEY") else None)
+        self.chat_provider = DEFAULT_CHAT_PROVIDER
+        self.codex_chat_client = CodexOAuthChatClient() if self.chat_provider in {"codex-oauth", "openai-codex", "codex"} else None
         self.embedding_model = embedding_model
         self.chroma_client = chromadb.PersistentClient(path=self.chroma_dir)
         self.collections = self._load_collections()
@@ -156,6 +160,8 @@ class WessRagEngine:
             "status": "ok" if any(p["ready"] for p in products.values()) else "degraded",
             "chroma_dir": self.chroma_dir,
             "openai_ready": self.openai_client is not None,
+            "chat_provider": self.chat_provider,
+            "codex_oauth_ready": self.codex_chat_client is not None,
             "embedding_model": self.embedding_model,
             "products": products,
         }
@@ -342,6 +348,44 @@ class WessRagEngine:
             kwargs["stream"] = True
         return kwargs
 
+    def _use_codex_oauth_chat(self) -> bool:
+        return self.codex_chat_client is not None
+
+    def _complete_openai_chat(self, model: str, messages: list[dict[str, Any]], temperature: float) -> str:
+        response = self._client().chat.completions.create(
+            **self._chat_kwargs(model, messages, temperature)
+        )
+        return response.choices[0].message.content or ""
+
+    def _stream_openai_chat(self, model: str, messages: list[dict[str, Any]], temperature: float):
+        return self._client().chat.completions.create(
+            **self._chat_kwargs(model, messages, temperature, stream=True)
+        )
+
+    def _complete_chat(self, model: str, messages: list[dict[str, Any]], temperature: float) -> str:
+        if self._use_codex_oauth_chat():
+            try:
+                return self.codex_chat_client.complete_chat(model=model, messages=messages)  # type: ignore[union-attr]
+            except CodexOAuthError as exc:
+                if self.openai_client is not None and is_usage_limit_error(exc):
+                    return self._complete_openai_chat(model, messages, temperature)
+                raise
+        return self._complete_openai_chat(model, messages, temperature)
+
+    def _stream_codex_then_openai_chat(self, model: str, messages: list[dict[str, Any]], temperature: float):
+        try:
+            yield from self.codex_chat_client.stream_chat(model=model, messages=messages)  # type: ignore[union-attr]
+        except CodexOAuthError as exc:
+            if self.openai_client is not None and is_usage_limit_error(exc):
+                yield from self._stream_openai_chat(model, messages, temperature)
+                return
+            raise
+
+    def _stream_chat(self, model: str, messages: list[dict[str, Any]], temperature: float):
+        if self._use_codex_oauth_chat():
+            return self._stream_codex_then_openai_chat(model, messages, temperature)
+        return self._stream_openai_chat(model, messages, temperature)
+
     def answer_once(
         self,
         question: str,
@@ -354,10 +398,7 @@ class WessRagEngine:
     ) -> tuple[str, RetrievalResult]:
         retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
-        response = self._client().chat.completions.create(
-            **self._chat_kwargs(model, messages, temperature)
-        )
-        return response.choices[0].message.content or "", retrieval
+        return self._complete_chat(model, messages, temperature), retrieval
 
     def answer_once_with_images(
         self,
@@ -385,10 +426,7 @@ class WessRagEngine:
             },
             *({"type": "image_url", "image_url": {"url": url}} for url in image_data_urls[:4]),
         ]
-        response = self._client().chat.completions.create(
-            **self._chat_kwargs(model, messages, temperature)
-        )
-        return response.choices[0].message.content or "", retrieval
+        return self._complete_chat(model, messages, temperature), retrieval
 
     def answer_stream(
         self,
@@ -402,7 +440,5 @@ class WessRagEngine:
     ):
         retrieval = self.retrieve(question, product=product, history=history)
         messages = self.build_messages(question, retrieval, language=language, history=history)
-        stream = self._client().chat.completions.create(
-            **self._chat_kwargs(model, messages, temperature, stream=True)
-        )
+        stream = self._stream_chat(model, messages, temperature)
         return stream, retrieval

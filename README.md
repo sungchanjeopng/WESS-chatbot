@@ -146,7 +146,12 @@ ChromaDB는 단순 벡터만이 아니라 `chroma:document` 형태의 원문 chu
 
 ## 환경 변수
 
-- `OPENAI_API_KEY`: 필수
+- `OPENAI_API_KEY`: 필수. RAG 검색용 query embedding 생성에 사용됩니다. `WESS_CHAT_PROVIDER=codex-oauth`로 답변 생성을 Codex OAuth로 돌려도 현재 구조에서는 embedding 때문에 필요합니다.
+- `WESS_CHAT_PROVIDER`: 기본 `openai`. 실험값 `codex-oauth`를 쓰면 답변 생성만 Hermes OpenAI Codex OAuth 토큰(`~/.hermes/auth.json`)으로 호출합니다.
+- `WESS_CODEX_AUTH_FILE`: `codex-oauth` 사용 시 Hermes auth 파일 경로. 기본 `~/.hermes/auth.json`.
+- `WESS_CODEX_BASE_URL`: `codex-oauth` 사용 시 Codex backend URL. 기본 `https://chatgpt.com/backend-api/codex`.
+- `WESS_CODEX_REASONING_EFFORT`: `codex-oauth` 사용 시 reasoning effort. 기본 `xhigh`.
+- `WESS_CODEX_FALLBACK_MODELS`: `codex-oauth` 사용 중 `gpt-5.5`가 429/usage limit에 걸리면 먼저 시도할 Codex fallback 모델 목록. 기본 `gpt-5.4`. Codex fallback도 실패하고 `OPENAI_API_KEY`가 있으면 마지막으로 OpenAI API key 경로를 사용합니다.
 - `WESS_CHAT_MODEL`: 기본 정밀 답변 모델
 - `WESS_FAST_MODEL`: 빠른 답변 모델
 - `WESS_EMBEDDING_MODEL`: 기본 `text-embedding-3-small`

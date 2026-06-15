@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import api
+from wessbot.codex_oauth import CodexOAuthError
 from wessbot.rag import IMAGE_ANALYSIS_INSTRUCTION, WessRagEngine
 
 
@@ -25,6 +26,14 @@ class FakeEngine:
 
     def answer_once_with_images(self, *args, **kwargs):
         return "이미지 테스트 답변", FakeRetrieval()
+
+
+class FakeCodexLimitClient:
+    def complete_chat(self, *args, **kwargs):
+        raise CodexOAuthError("429 usage_limit_reached")
+
+    def stream_chat(self, *args, **kwargs):
+        raise CodexOAuthError("429 usage_limit_reached")
 
 
 class ApiTests(unittest.TestCase):
@@ -80,6 +89,15 @@ class ApiTests(unittest.TestCase):
     def test_non_gpt55_chat_kwargs_keep_requested_temperature(self):
         kwargs = WessRagEngine._chat_kwargs("test-non-gpt55-model", [{"role": "user", "content": "hi"}], 0.8)
         self.assertEqual(kwargs["temperature"], 0.8)
+
+    def test_codex_usage_limit_falls_back_to_openai_api(self):
+        engine = WessRagEngine.__new__(WessRagEngine)
+        engine.codex_chat_client = FakeCodexLimitClient()
+        engine.openai_client = object()
+        with patch.object(engine, "_complete_openai_chat", return_value="api fallback") as mocked:
+            answer = engine._complete_chat("gpt-5.5", [{"role": "user", "content": "hi"}], 1.0)
+        self.assertEqual(answer, "api fallback")
+        mocked.assert_called_once()
 
     def test_default_answer_temperature_is_one(self):
         self.assertEqual(WessRagEngine.answer_once.__kwdefaults__["temperature"], 1.0)

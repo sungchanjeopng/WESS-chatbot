@@ -16,6 +16,11 @@ def _apply_streamlit_cloud_secrets() -> None:
     """Expose Streamlit Community Cloud secrets as env vars before config import."""
     secret_keys = (
         "OPENAI_API_KEY",
+        "WESS_CHAT_PROVIDER",
+        "WESS_CODEX_AUTH_FILE",
+        "WESS_CODEX_BASE_URL",
+        "WESS_CODEX_REASONING_EFFORT",
+        "WESS_CODEX_FALLBACK_MODELS",
         "WESS_CHAT_MODEL",
         "WESS_FAST_MODEL",
         "WESS_EMBEDDING_MODEL",
