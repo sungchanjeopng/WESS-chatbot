@@ -79,7 +79,7 @@ def start_api_server_if_enabled() -> None:
     threading.Thread(target=_run, daemon=True).start()
 
 
-ENGINE_CACHE_VERSION = "image-analysis-v2"
+ENGINE_CACHE_VERSION = "backend-status-v1"
 
 
 @st.cache_resource(show_spinner=False)
@@ -362,7 +362,12 @@ st.markdown(
 
 try:
     engine = get_engine(ENGINE_CACHE_VERSION)
-    if not hasattr(engine, "answer_once_with_images"):
+    required_engine_methods = (
+        "answer_once_with_images",
+        "is_backend_status_question",
+        "backend_status_answer",
+    )
+    if not all(hasattr(engine, method) for method in required_engine_methods):
         get_engine.clear()
         engine = get_engine(ENGINE_CACHE_VERSION + "-refresh")
 except Exception as exc:
