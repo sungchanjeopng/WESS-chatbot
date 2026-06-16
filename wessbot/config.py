@@ -4,13 +4,23 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+
+def normalize_provider_name(value: str | None, default: str = "openai") -> str:
+    """Normalize env provider names so codex_oauth and codex-oauth both work."""
+    raw_value = value if value is not None and str(value).strip() else default
+    raw = str(raw_value).strip().lower()
+    return raw.replace("_", "-")
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DIR = Path(os.getenv("CHROMA_DIR", str(BASE_DIR / "chroma_db")))
 DEFAULT_EMBEDDING_MODEL = os.getenv("WESS_EMBEDDING_MODEL", "text-embedding-3-small")
 DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.5")
 FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.5")
 # openai: normal OPENAI_API_KEY path. codex-oauth: experimental ChatGPT Codex OAuth path for chat only.
-DEFAULT_CHAT_PROVIDER = os.getenv("WESS_CHAT_PROVIDER", "openai").strip().lower()
+DEFAULT_CHAT_PROVIDER = normalize_provider_name(os.getenv("WESS_CHAT_PROVIDER", "openai"), "openai")
+# chroma: persisted Chroma + OpenAI embeddings. fts: local keyword/BM25 retrieval with no OpenAI API key.
+DEFAULT_RETRIEVAL_PROVIDER = normalize_provider_name(os.getenv("WESS_RETRIEVAL_PROVIDER", "chroma"), "chroma")
 DEFAULT_N_RESULTS = int(os.getenv("WESS_RAG_N_RESULTS", "18"))
 MAX_HISTORY_MESSAGES = int(os.getenv("WESS_MAX_HISTORY_MESSAGES", "16"))
 MAX_CONTEXT_CHARS = int(os.getenv("WESS_MAX_CONTEXT_CHARS", "18000"))

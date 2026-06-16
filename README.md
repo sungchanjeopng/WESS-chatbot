@@ -9,7 +9,8 @@ Streamlit 웹 UI와 Flask REST/SSE API를 함께 제공합니다.
 - `api.py`: Android/iOS/외부 연동 REST API 전용
 - `wessbot/products.py`: 제품 정의, 별칭, 제품 자동 감지
 - `wessbot/prompts.py`: 제품별 답변 규칙과 프롬프트
-- `wessbot/rag.py`: Chroma 검색, 재정렬, OpenAI 답변 생성, 후속 질문 맥락 검색
+- `wessbot/rag.py`: Chroma/FTS 검색, 재정렬, OpenAI 또는 Codex OAuth 답변 생성, 후속 질문 맥락 검색
+- `wessbot/fts_retriever.py`: OpenAI API key 없이 동작하는 로컬 BM25/키워드 검색
 - `wessbot/ingest.py`: 문서 추출, chunking, ChromaDB 재생성
 - `tests/`: 제품 감지, 프롬프트, chunking, API shape, 후속 질문 검색 테스트
 
@@ -60,6 +61,30 @@ CHROMA_DIR="./chroma_db"
 
 바로가기 예시:
 `https://share.streamlit.io/deploy?repository=https://github.com/sungchanjeopng/WESS-chatbot&branch=main&mainModule=app.py`
+
+## OpenAI API key 없는 OAuth 텍스트 모드
+
+텍스트 질문만 처리할 때는 OpenAI embedding을 쓰지 않는 로컬 FTS/BM25 검색과 Codex OAuth 답변 생성을 조합할 수 있습니다. 이 모드는 `OPENAI_API_KEY` 없이 동작합니다.
+
+```bash
+env -u OPENAI_API_KEY \
+  WESS_RETRIEVAL_PROVIDER=fts \
+  WESS_CHAT_PROVIDER=codex-oauth \
+  WESS_CHAT_MODEL=gpt-5.5 \
+  streamlit run app.py
+```
+
+Streamlit Cloud에서는 secrets에 아래처럼 넣습니다. 실제 토큰은 GitHub에 커밋하지 마세요.
+
+```toml
+WESS_RETRIEVAL_PROVIDER="fts"
+WESS_CHAT_PROVIDER="codex-oauth"
+WESS_CHAT_MODEL="gpt-5.5"
+WESS_CODEX_ACCESS_TOKEN="..."
+WESS_CODEX_BASE_URL="https://chatgpt.com/backend-api/codex"
+```
+
+주의: Codex OAuth 백엔드는 현재 텍스트 답변용입니다. 이미지/파형 첨부 분석은 `WESS_CHAT_PROVIDER=openai`와 `OPENAI_API_KEY` 경로를 사용하세요.
 
 ## API
 
@@ -146,7 +171,8 @@ ChromaDB는 단순 벡터만이 아니라 `chroma:document` 형태의 원문 chu
 
 ## 환경 변수
 
-- `OPENAI_API_KEY`: 필수. RAG 검색용 query embedding 생성에 사용됩니다. `WESS_CHAT_PROVIDER=codex-oauth`로 답변 생성을 Codex OAuth로 돌려도 현재 구조에서는 embedding 때문에 필요합니다.
+- `OPENAI_API_KEY`: 기본 `WESS_RETRIEVAL_PROVIDER=chroma`에서는 RAG query embedding 생성에 필요합니다. `WESS_RETRIEVAL_PROVIDER=fts`를 쓰면 텍스트 질문 검색에는 필요하지 않습니다.
+- `WESS_RETRIEVAL_PROVIDER`: 기본 `chroma`. `fts`로 설정하면 로컬 BM25/키워드 검색을 사용해 OpenAI embedding 없이 검색합니다.
 - `WESS_CHAT_PROVIDER`: 기본 `openai`. 실험값 `codex-oauth`를 쓰면 답변 생성만 Hermes OpenAI Codex OAuth 토큰(`~/.hermes/auth.json`)으로 호출합니다.
 - `WESS_CODEX_AUTH_FILE`: `codex-oauth` 사용 시 Hermes auth 파일 경로. 기본 `~/.hermes/auth.json`.
 - `WESS_CODEX_ACCESS_TOKEN`: Streamlit Cloud처럼 파일을 둘 수 없는 배포에서 Codex OAuth access token을 직접 넣는 실험 옵션입니다. 토큰 만료/보안 리스크가 있으므로 장기 운영은 자체 Hermes 서버 권장.

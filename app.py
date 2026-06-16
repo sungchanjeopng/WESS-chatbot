@@ -17,6 +17,7 @@ def _apply_streamlit_cloud_secrets() -> None:
     secret_keys = (
         "OPENAI_API_KEY",
         "WESS_CHAT_PROVIDER",
+        "WESS_RETRIEVAL_PROVIDER",
         "WESS_CODEX_AUTH_FILE",
         "WESS_CODEX_AUTH_JSON",
         "WESS_CODEX_ACCESS_TOKEN",

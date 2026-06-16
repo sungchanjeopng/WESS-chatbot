@@ -17,9 +17,11 @@ from .config import (
     DEFAULT_CHAT_PROVIDER,
     DEFAULT_EMBEDDING_MODEL,
     DEFAULT_N_RESULTS,
+    DEFAULT_RETRIEVAL_PROVIDER,
     MAX_CONTEXT_CHARS,
     MAX_HISTORY_MESSAGES,
     normalize_language,
+    normalize_provider_name,
 )
 from .products import PRODUCTS, detect_product, normalize_product
 from .prompts import (
@@ -117,15 +119,31 @@ class WessRagEngine:
         chroma_dir: str | os.PathLike[str] = CHROMA_DIR,
         openai_client: Optional[OpenAI] = None,
         embedding_model: str = DEFAULT_EMBEDDING_MODEL,
+        retrieval_provider: str | None = None,
+        chat_provider: str | None = None,
+        retriever: Any | None = None,
     ) -> None:
         self.chroma_dir = str(chroma_dir)
         self.openai_client = openai_client or (OpenAI() if os.getenv("OPENAI_API_KEY") else None)
-        self.chat_provider = DEFAULT_CHAT_PROVIDER
+        self.chat_provider = normalize_provider_name(chat_provider or DEFAULT_CHAT_PROVIDER, "openai")
+        self.retrieval_provider = normalize_provider_name(retrieval_provider or DEFAULT_RETRIEVAL_PROVIDER, "chroma")
         self.codex_chat_client = CodexOAuthChatClient() if self.chat_provider in {"codex-oauth", "openai-codex", "codex"} else None
         self.last_chat_backend = "not_used_yet"
         self.embedding_model = embedding_model
-        self.chroma_client = chromadb.PersistentClient(path=self.chroma_dir)
-        self.collections = self._load_collections()
+        self.retriever = retriever
+        self.chroma_client = None
+        self.collections: dict[str, Any | None] = {}
+
+        if self.retrieval_provider == "chroma":
+            self.chroma_client = chromadb.PersistentClient(path=self.chroma_dir)
+            self.collections = self._load_collections()
+        elif self.retrieval_provider == "fts":
+            if self.retriever is None:
+                from .fts_retriever import FtsRetriever
+
+                self.retriever = FtsRetriever()
+        else:
+            raise ValueError(f"Unsupported WESS_RETRIEVAL_PROVIDER: {self.retrieval_provider}")
 
     def _load_collections(self) -> dict[str, Any | None]:
         collections: dict[str, Any | None] = {}
@@ -142,24 +160,31 @@ class WessRagEngine:
         return self.openai_client
 
     def health(self) -> dict[str, Any]:
-        products: dict[str, Any] = {}
-        for key, spec in PRODUCTS.items():
-            col = self.collections.get(key)
-            count = None
-            ready = col is not None
-            if col is not None:
-                try:
-                    count = col.count()
-                except Exception:
-                    ready = False
-            products[key] = {
-                "collection": spec.collection,
-                "ready": ready,
-                "count": count,
-            }
+        if self.retrieval_provider == "fts":
+            retrieval_health = self.retriever.health() if self.retriever is not None else {"status": "degraded", "products": {}}
+            products = retrieval_health.get("products", {}) if isinstance(retrieval_health, dict) else {}
+            status = retrieval_health.get("status", "degraded") if isinstance(retrieval_health, dict) else "degraded"
+        else:
+            products: dict[str, Any] = {}
+            for key, spec in PRODUCTS.items():
+                col = self.collections.get(key)
+                count = None
+                ready = col is not None
+                if col is not None:
+                    try:
+                        count = col.count()
+                    except Exception:
+                        ready = False
+                products[key] = {
+                    "collection": spec.collection,
+                    "ready": ready,
+                    "count": count,
+                }
+            status = "ok" if any(p["ready"] for p in products.values()) else "degraded"
         return {
-            "status": "ok" if any(p["ready"] for p in products.values()) else "degraded",
+            "status": status,
             "chroma_dir": self.chroma_dir,
+            "retrieval_provider": self.retrieval_provider,
             "openai_ready": self.openai_client is not None,
             "chat_provider": self.chat_provider,
             "codex_oauth_ready": self.codex_chat_client is not None,
@@ -200,14 +225,20 @@ class WessRagEngine:
         else:
             primary = "OPENAI_API_KEY 기반 OpenAI API"
             fallback = "Codex OAuth는 현재 설정되어 있지 않음"
+        retrieval_provider = getattr(self, "retrieval_provider", "chroma")
+        if retrieval_provider == "fts":
+            retrieval_note = "FTS/BM25 로컬 검색 사용 중 — 텍스트 질문은 OPENAI_API_KEY 없이 검색 가능"
+        else:
+            retrieval_note = "Chroma/OpenAI embedding 검색 사용 중 — OPENAI_API_KEY 필요"
         return (
             f"현재 답변 생성 경로: {primary}\n"
             f"설정값 WESS_CHAT_PROVIDER: {self.chat_provider}\n"
+            f"설정값 WESS_RETRIEVAL_PROVIDER: {retrieval_provider}\n"
+            f"문서 검색 경로: {retrieval_note}\n"
             f"Codex OAuth 준비: {'yes' if codex_enabled else 'no'}\n"
             f"OpenAI API fallback 준비: {'yes' if openai_ready else 'no'}\n"
             f"최근 실제 답변 생성 경로: {self.last_chat_backend}\n"
-            f"fallback 정책: {fallback}\n"
-            "참고: 문서 검색용 embedding은 현재 OPENAI_API_KEY를 사용합니다."
+            f"fallback 정책: {fallback}"
         )
 
     @staticmethod
@@ -324,17 +355,19 @@ class WessRagEngine:
             # Follow-up without its own product signal: inherit the product from recent turns.
             detected, _, scores = detect_product(search_query, "auto")
             conflict = False
-        query_embedding = self.embed(search_query)
-
         if selected == "auto":
             target_products = list(PRODUCTS.keys())
         else:
             target_products = [detected if conflict else selected]
 
-        chunks: list[RetrievedChunk] = []
-        per_product_n = max(4, n_results if len(target_products) == 1 else max(6, n_results // len(target_products)))
-        for key in target_products:
-            chunks.extend(self._query_collection(key, search_query, query_embedding, per_product_n))
+        if self.retrieval_provider == "fts":
+            chunks = list(self.retriever.query(search_query, product_keys=target_products, n_results=n_results)) if self.retriever is not None else []
+        else:
+            query_embedding = self.embed(search_query)
+            chunks: list[RetrievedChunk] = []
+            per_product_n = max(4, n_results if len(target_products) == 1 else max(6, n_results // len(target_products)))
+            for key in target_products:
+                chunks.extend(self._query_collection(key, search_query, query_embedding, per_product_n))
 
         ranked = self._dedupe_chunks(chunks)[:n_results]
         low_evidence = not ranked or (ranked[0].combined_score < 0.28 and ranked[0].keyword_score == 0)
