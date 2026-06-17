@@ -328,7 +328,16 @@ def get_sample_questions(product: str, language: str) -> tuple[str, str, str]:
 
 start_api_server_if_enabled()
 
-st.set_page_config(page_title="WESS-AI", page_icon="🔧", layout="centered")
+st.set_page_config(
+    page_title="WESS-AI",
+    page_icon="🔧",
+    layout="centered",
+    menu_items={
+        "Get help": None,
+        "Report a bug": None,
+        "About": None,
+    },
+)
 st.markdown(
     """
 <style>
