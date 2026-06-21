@@ -80,7 +80,7 @@ def start_api_server_if_enabled() -> None:
     threading.Thread(target=_run, daemon=True).start()
 
 
-ENGINE_CACHE_VERSION = "backend-status-v1"
+ENGINE_CACHE_VERSION = "image-openai-routing-v1"
 
 
 @st.cache_resource(show_spinner=False)

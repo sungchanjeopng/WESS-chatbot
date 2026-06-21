@@ -520,7 +520,17 @@ class WessRagEngine:
             },
             *({"type": "image_url", "image_url": {"url": url}} for url in image_data_urls[:4]),
         ]
-        return self._complete_chat(model, messages, temperature), retrieval
+        # Codex OAuth's experimental backend is text-only. Keep normal text chat on
+        # Codex OAuth, but always route multimodal/image answers through the
+        # OpenAI API-key client when available.
+        if self._use_codex_oauth_chat() and self.openai_client is None:
+            raise RuntimeError(
+                "이미지 분석은 OpenAI API 키 경로가 필요합니다. Streamlit Secrets에 OPENAI_API_KEY를 추가하고 "
+                "WESS_CHAT_PROVIDER=openai로 바꾸거나, 현재 Codex OAuth 설정을 유지하려면 OPENAI_API_KEY를 fallback으로 같이 설정하세요."
+            )
+        answer = self._complete_openai_chat(model, messages, temperature)
+        self.last_chat_backend = "openai-api-image"
+        return answer, retrieval
 
     def answer_stream(
         self,

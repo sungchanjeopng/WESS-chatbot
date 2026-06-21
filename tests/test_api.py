@@ -101,6 +101,41 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(engine.last_chat_backend, "openai-api-fallback")
         mocked.assert_called_once()
 
+    def test_image_answer_uses_openai_api_even_when_codex_enabled(self):
+        engine = WessRagEngine.__new__(WessRagEngine)
+        engine.codex_chat_client = object()
+        engine.openai_client = object()
+        engine.last_chat_backend = "not_used_yet"
+        fake_retrieval = FakeRetrieval()
+        with patch.object(engine, "is_backend_status_question", return_value=False), \
+             patch.object(engine, "retrieve", return_value=fake_retrieval), \
+             patch.object(engine, "build_messages", return_value=[{"role": "user", "content": "look"}]), \
+             patch.object(engine, "_complete_openai_chat", return_value="image answer") as mocked_openai, \
+             patch.object(engine, "_complete_chat", side_effect=AssertionError("codex path should not be used")):
+            answer, retrieval = engine.answer_once_with_images(
+                "파형 분석해줘",
+                ["data:image/png;base64,iVBORw0KGgo="],
+                model="gpt-5.5",
+            )
+        self.assertEqual(answer, "image answer")
+        self.assertIs(retrieval, fake_retrieval)
+        self.assertEqual(engine.last_chat_backend, "openai-api-image")
+        mocked_openai.assert_called_once()
+
+    def test_image_answer_without_openai_key_explains_required_setting(self):
+        engine = WessRagEngine.__new__(WessRagEngine)
+        engine.codex_chat_client = object()
+        engine.openai_client = None
+        with patch.object(engine, "is_backend_status_question", return_value=False), \
+             patch.object(engine, "retrieve", return_value=FakeRetrieval()), \
+             patch.object(engine, "build_messages", return_value=[{"role": "user", "content": "look"}]):
+            with self.assertRaisesRegex(RuntimeError, "OPENAI_API_KEY"):
+                engine.answer_once_with_images(
+                    "파형 분석해줘",
+                    ["data:image/png;base64,iVBORw0KGgo="],
+                    model="gpt-5.5",
+                )
+
     def test_backend_status_question_answers_without_model_call(self):
         engine = WessRagEngine.__new__(WessRagEngine)
         engine.codex_chat_client = object()
