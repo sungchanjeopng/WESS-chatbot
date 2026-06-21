@@ -40,7 +40,9 @@ FOLLOWUP_HISTORY_TURNS = 2
 IMAGE_ANALYSIS_INSTRUCTION = (
     "If the image is a WESS waveform/screen capture, inspect the visible waveform, threshold line, "
     "measurement bar, peaks, noise, and displayed values. For ENV120 waveform screens, interpret the "
-    "upper-left value as measurement range and Empty; it is absolutely not the live measurement value. "
+    "upper-left Empty value as the measurement range first; Empty itself is the configured measurement range, "
+    "not a separate live measurement value. In image answers, identify Empty/measurement range first, "
+    "then interpret Threshold and D/S values. "
     "Interpret the upper-right value as Threshold/문턱전압. "
     "Empty is a fixed site/configuration reference and does not change during normal waveform viewing "
     "unless the Empty setting is intentionally changed. The lower-left and lower-right label rule is fixed: "

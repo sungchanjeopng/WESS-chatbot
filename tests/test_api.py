@@ -153,9 +153,11 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(WessRagEngine.answer_stream.__kwdefaults__["temperature"], 1.0)
 
     def test_env120_image_instruction_defines_d_and_s_labels(self):
-        self.assertIn("upper-left value as measurement range and Empty", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("upper-left Empty value as the measurement range first", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("Empty itself is the configured measurement range", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("identify Empty/measurement range first", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("upper-right value as Threshold/문턱전압", IMAGE_ANALYSIS_INSTRUCTION)
-        self.assertIn("absolutely not the live measurement value", IMAGE_ANALYSIS_INSTRUCTION)
+        self.assertIn("not a separate live measurement value", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("does not change", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("unless the Empty setting is intentionally changed", IMAGE_ANALYSIS_INSTRUCTION)
         self.assertIn("lower-left and lower-right label rule is fixed", IMAGE_ANALYSIS_INSTRUCTION)
