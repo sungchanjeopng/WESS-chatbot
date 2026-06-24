@@ -15,10 +15,10 @@ def normalize_provider_name(value: str | None, default: str = "openai") -> str:
 BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DIR = Path(os.getenv("CHROMA_DIR", str(BASE_DIR / "chroma_db")))
 DEFAULT_EMBEDDING_MODEL = os.getenv("WESS_EMBEDDING_MODEL", "text-embedding-3-small")
-DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.5")
-FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.5")
-# openai: normal OPENAI_API_KEY path. codex-oauth: experimental ChatGPT Codex OAuth path for chat only.
-DEFAULT_CHAT_PROVIDER = normalize_provider_name(os.getenv("WESS_CHAT_PROVIDER", "openai"), "openai")
+DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.4")
+FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.4")
+# WESS-chatbot now uses the normal OpenAI API path only.
+DEFAULT_CHAT_PROVIDER = "openai"
 # chroma: persisted Chroma + OpenAI embeddings. fts: local keyword/BM25 retrieval with no OpenAI API key.
 DEFAULT_RETRIEVAL_PROVIDER = normalize_provider_name(os.getenv("WESS_RETRIEVAL_PROVIDER", "chroma"), "chroma")
 DEFAULT_N_RESULTS = int(os.getenv("WESS_RAG_N_RESULTS", "18"))

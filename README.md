@@ -53,8 +53,9 @@ OPENAI_API_KEY="sk-..."
 선택 secrets:
 
 ```toml
-WESS_CHAT_MODEL="gpt-5.5"
-WESS_FAST_MODEL="gpt-5.5"
+WESS_CHAT_PROVIDER="openai"
+WESS_CHAT_MODEL="gpt-5.4"
+WESS_FAST_MODEL="gpt-5.4"
 WESS_EMBEDDING_MODEL="text-embedding-3-small"
 CHROMA_DIR="./chroma_db"
 ```
@@ -62,29 +63,15 @@ CHROMA_DIR="./chroma_db"
 바로가기 예시:
 `https://share.streamlit.io/deploy?repository=https://github.com/sungchanjeopng/WESS-chatbot&branch=main&mainModule=app.py`
 
-## OpenAI API key 없는 OAuth 텍스트 모드
+## 운영 기본값
 
-텍스트 질문만 처리할 때는 OpenAI embedding을 쓰지 않는 로컬 FTS/BM25 검색과 Codex OAuth 답변 생성을 조합할 수 있습니다. 이 모드는 `OPENAI_API_KEY` 없이 동작합니다.
+현재 기본 운영 경로는 `OPENAI_API_KEY` 기반 OpenAI API + `gpt-5.4` 입니다.
 
-```bash
-env -u OPENAI_API_KEY \
-  WESS_RETRIEVAL_PROVIDER=fts \
-  WESS_CHAT_PROVIDER=codex-oauth \
-  WESS_CHAT_MODEL=gpt-5.5 \
-  streamlit run app.py
-```
+- `WESS_CHAT_PROVIDER=openai`
+- `WESS_CHAT_MODEL=gpt-5.4`
+- `WESS_FAST_MODEL=gpt-5.4`
 
-Streamlit Cloud에서는 secrets에 아래처럼 넣습니다. 실제 토큰은 GitHub에 커밋하지 마세요.
-
-```toml
-WESS_RETRIEVAL_PROVIDER="fts"
-WESS_CHAT_PROVIDER="codex-oauth"
-WESS_CHAT_MODEL="gpt-5.5"
-WESS_CODEX_ACCESS_TOKEN="..."
-WESS_CODEX_BASE_URL="https://chatgpt.com/backend-api/codex"
-```
-
-주의: Codex OAuth 백엔드는 현재 텍스트 답변용입니다. 이미지/파형 첨부 분석은 `WESS_CHAT_PROVIDER=openai`와 `OPENAI_API_KEY` 경로를 사용하세요.
+배포 환경에서도 Codex OAuth 대신 위 OpenAI API 설정을 사용하세요.
 
 ## API
 
@@ -173,15 +160,9 @@ ChromaDB는 단순 벡터만이 아니라 `chroma:document` 형태의 원문 chu
 
 - `OPENAI_API_KEY`: 기본 `WESS_RETRIEVAL_PROVIDER=chroma`에서는 RAG query embedding 생성에 필요합니다. `WESS_RETRIEVAL_PROVIDER=fts`를 쓰면 텍스트 질문 검색에는 필요하지 않습니다.
 - `WESS_RETRIEVAL_PROVIDER`: 기본 `chroma`. `fts`로 설정하면 로컬 BM25/키워드 검색을 사용해 OpenAI embedding 없이 검색합니다.
-- `WESS_CHAT_PROVIDER`: 기본 `openai`. 실험값 `codex-oauth`를 쓰면 답변 생성만 Hermes OpenAI Codex OAuth 토큰(`~/.hermes/auth.json`)으로 호출합니다.
-- `WESS_CODEX_AUTH_FILE`: `codex-oauth` 사용 시 Hermes auth 파일 경로. 기본 `~/.hermes/auth.json`.
-- `WESS_CODEX_ACCESS_TOKEN`: Streamlit Cloud처럼 파일을 둘 수 없는 배포에서 Codex OAuth access token을 직접 넣는 실험 옵션입니다. 토큰 만료/보안 리스크가 있으므로 장기 운영은 자체 Hermes 서버 권장.
-- `WESS_CODEX_AUTH_JSON`: `WESS_CODEX_ACCESS_TOKEN` 대신 Hermes `auth.json` 내용을 secret 문자열로 넣는 실험 옵션입니다. 토큰 값은 답변에 노출하지 않습니다.
-- `WESS_CODEX_BASE_URL`: `codex-oauth` 사용 시 Codex backend URL. 기본 `https://chatgpt.com/backend-api/codex`.
-- `WESS_CODEX_REASONING_EFFORT`: `codex-oauth` 사용 시 reasoning effort. 기본 `xhigh`.
-- `WESS_CODEX_FALLBACK_MODELS`: `codex-oauth` 사용 중 `gpt-5.5`가 429/usage limit에 걸리면 먼저 시도할 Codex fallback 모델 목록. 기본 `gpt-5.4`. Codex fallback도 실패하고 `OPENAI_API_KEY`가 있으면 마지막으로 OpenAI API key 경로를 사용합니다.
-- `WESS_CHAT_MODEL`: 기본 정밀 답변 모델
-- `WESS_FAST_MODEL`: 빠른 답변 모델
+- `WESS_CHAT_PROVIDER`: 기본 `openai`.
+- `WESS_CHAT_MODEL`: 기본 정밀 답변 모델. 기본값 `gpt-5.4`.
+- `WESS_FAST_MODEL`: 빠른 답변 모델. 기본값 `gpt-5.4`.
 - `WESS_EMBEDDING_MODEL`: 기본 `text-embedding-3-small`
 - `CHROMA_DIR`: ChromaDB 경로
 - `API_PORT`: API 포트
