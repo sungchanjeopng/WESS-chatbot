@@ -18,7 +18,7 @@ from openai import OpenAI
 
 DEFAULT_CODEX_BASE_URL = "https://chatgpt.com/backend-api/codex"
 DEFAULT_CODEX_REASONING_EFFORT = "xhigh"
-DEFAULT_CODEX_FALLBACK_MODELS = ("gpt-5.4",)
+DEFAULT_CODEX_FALLBACK_MODELS = ("gpt-5.4-mini",)
 
 
 class CodexOAuthError(RuntimeError):

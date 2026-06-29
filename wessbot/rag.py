@@ -223,7 +223,7 @@ class WessRagEngine:
         openai_ready = self.openai_client is not None
         if codex_enabled:
             primary = "Codex OAuth 우선"
-            fallback = "Codex gpt-5.5 실패 시 gpt-5.4를 먼저 시도하고, 그래도 usage limit이면 OPENAI_API_KEY 경로로 fallback"
+            fallback = "Codex gpt-5.5 실패 시 gpt-5.4-mini를 먼저 시도하고, 그래도 usage limit이면 OPENAI_API_KEY 경로로 fallback"
         else:
             primary = "OPENAI_API_KEY 기반 OpenAI API"
             fallback = "Codex OAuth는 현재 설정되어 있지 않음"

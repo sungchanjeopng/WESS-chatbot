@@ -54,8 +54,8 @@ OPENAI_API_KEY="sk-..."
 
 ```toml
 WESS_CHAT_PROVIDER="openai"
-WESS_CHAT_MODEL="gpt-5.4"
-WESS_FAST_MODEL="gpt-5.4"
+WESS_CHAT_MODEL="gpt-5.4-mini"
+WESS_FAST_MODEL="gpt-5.4-mini"
 WESS_EMBEDDING_MODEL="text-embedding-3-small"
 CHROMA_DIR="./chroma_db"
 ```
@@ -65,11 +65,11 @@ CHROMA_DIR="./chroma_db"
 
 ## 운영 기본값
 
-현재 기본 운영 경로는 `OPENAI_API_KEY` 기반 OpenAI API + `gpt-5.4` 입니다.
+현재 기본 운영 경로는 `OPENAI_API_KEY` 기반 OpenAI API + `gpt-5.4-mini` 입니다.
 
 - `WESS_CHAT_PROVIDER=openai`
-- `WESS_CHAT_MODEL=gpt-5.4`
-- `WESS_FAST_MODEL=gpt-5.4`
+- `WESS_CHAT_MODEL=gpt-5.4-mini`
+- `WESS_FAST_MODEL=gpt-5.4-mini`
 
 배포 환경에서도 Codex OAuth 대신 위 OpenAI API 설정을 사용하세요.
 
@@ -161,8 +161,8 @@ ChromaDB는 단순 벡터만이 아니라 `chroma:document` 형태의 원문 chu
 - `OPENAI_API_KEY`: 기본 `WESS_RETRIEVAL_PROVIDER=chroma`에서는 RAG query embedding 생성에 필요합니다. `WESS_RETRIEVAL_PROVIDER=fts`를 쓰면 텍스트 질문 검색에는 필요하지 않습니다.
 - `WESS_RETRIEVAL_PROVIDER`: 기본 `chroma`. `fts`로 설정하면 로컬 BM25/키워드 검색을 사용해 OpenAI embedding 없이 검색합니다.
 - `WESS_CHAT_PROVIDER`: 기본 `openai`.
-- `WESS_CHAT_MODEL`: 기본 정밀 답변 모델. 기본값 `gpt-5.4`.
-- `WESS_FAST_MODEL`: 빠른 답변 모델. 기본값 `gpt-5.4`.
+- `WESS_CHAT_MODEL`: 기본 정밀 답변 모델. 기본값 `gpt-5.4-mini`.
+- `WESS_FAST_MODEL`: 빠른 답변 모델. 기본값 `gpt-5.4-mini`.
 - `WESS_EMBEDDING_MODEL`: 기본 `text-embedding-3-small`
 - `CHROMA_DIR`: ChromaDB 경로
 - `API_PORT`: API 포트

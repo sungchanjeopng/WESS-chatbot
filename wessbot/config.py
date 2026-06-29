@@ -15,8 +15,8 @@ def normalize_provider_name(value: str | None, default: str = "openai") -> str:
 BASE_DIR = Path(__file__).resolve().parent.parent
 CHROMA_DIR = Path(os.getenv("CHROMA_DIR", str(BASE_DIR / "chroma_db")))
 DEFAULT_EMBEDDING_MODEL = os.getenv("WESS_EMBEDDING_MODEL", "text-embedding-3-small")
-DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.4")
-FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.4")
+DEFAULT_CHAT_MODEL = os.getenv("WESS_CHAT_MODEL", "gpt-5.4-mini")
+FAST_CHAT_MODEL = os.getenv("WESS_FAST_MODEL", "gpt-5.4-mini")
 # WESS-chatbot now uses the normal OpenAI API path only.
 DEFAULT_CHAT_PROVIDER = "openai"
 # chroma: persisted Chroma + OpenAI embeddings. fts: local keyword/BM25 retrieval with no OpenAI API key.

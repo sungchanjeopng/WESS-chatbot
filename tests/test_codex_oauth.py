@@ -42,9 +42,9 @@ class CodexOAuthTests(unittest.TestCase):
         self.assertEqual(DEFAULT_CODEX_REASONING_EFFORT, "xhigh")
         self.assertEqual(CodexOAuthChatClient().reasoning_effort, "xhigh")
 
-    def test_default_codex_fallback_is_gpt54(self):
-        self.assertEqual(DEFAULT_CODEX_FALLBACK_MODELS, ("gpt-5.4",))
-        self.assertEqual(CodexOAuthChatClient()._candidate_models("gpt-5.5"), ("gpt-5.5", "gpt-5.4"))
+    def test_default_codex_fallback_is_gpt54_mini(self):
+        self.assertEqual(DEFAULT_CODEX_FALLBACK_MODELS, ("gpt-5.4-mini",))
+        self.assertEqual(CodexOAuthChatClient()._candidate_models("gpt-5.5"), ("gpt-5.5", "gpt-5.4-mini"))
 
     def test_complete_chat_collects_stream_deltas(self):
         client = CodexOAuthChatClient()
