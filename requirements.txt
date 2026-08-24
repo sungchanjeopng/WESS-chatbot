@@ -1,8 +1,0 @@
-openai
-chromadb
-python-docx
-python-pptx
-python-dotenv
-streamlit
-flask
-gunicorn
