@@ -1,5 +1,8 @@
-# WESS AI
+# WESS AI 안내 사이트
 
-WESS AI 기술지원 서비스는 아래 주소에서 이용할 수 있습니다.
+이 저장소는 WESS AI 기술지원 서비스로 안내하는 정적 사이트입니다.
 
-## [ai.wessglobal.com 접속하기](https://ai.wessglobal.com/)
+- 안내 사이트: https://sungchanjeopng.github.io/WESS-chatbot/
+- WESS AI 기술지원: https://ai.wessglobal.com/
+
+안내 사이트에 접속하면 WESS AI 기술지원으로 자동 이동합니다.
