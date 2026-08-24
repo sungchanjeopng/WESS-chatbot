@@ -32,13 +32,14 @@ st.iframe(
       <script>
         (() => {{
           const target = {TARGET_URL!r};
-          const preview = new URL(window.parent.location.href).searchParams.has("preview");
-          if (preview) return;
           try {{
-            const meta = window.parent.document.createElement("meta");
+            const topWindow = window.top;
+            const preview = new URL(topWindow.location.href).searchParams.has("preview");
+            if (preview) return;
+            const meta = topWindow.document.createElement("meta");
             meta.httpEquiv = "refresh";
             meta.content = `0; url=${{target}}`;
-            window.parent.document.head.appendChild(meta);
+            topWindow.document.head.appendChild(meta);
           }} catch (error) {{
             window.open(target, "_top");
           }}
